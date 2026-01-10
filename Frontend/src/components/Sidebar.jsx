@@ -5,6 +5,7 @@ import { VITE_BACKEND_URL } from "../utils/constants.js";
 import { useIsMobile } from "../hooks/use-mobile.jsx";
 import NotesContainer from "./NotesContainer.jsx";
 import { LogIn, LogOut } from "lucide-react";
+import Button from "../ui/button.jsx";
 
 const Sidebar = () => {
   const {
@@ -105,27 +106,34 @@ const Sidebar = () => {
 
       {!isMobile && notesContainer && <NotesContainer />}
       {user ? (
-        <button
-          className="auth-btn"
+        <Button
+          // className="auth-btn"
           onClick={handleUserLogOut}
-          disabled={authenticating}
+          isLoading={authenticating}
+          leftSection={<LogOut size={14} />}
+          variant={"info"}
+          className={"self-center"}
         >
-          {authenticating ? (
+          Logout
+          {/* {authenticating ? (
             <p>Please wait...</p>
           ) : (
             <div className="auth-btn-sidebar">
-              <LogOut />
+              
               <span>Logout</span>
             </div>
-          )}
-        </button>
+          )} */}
+        </Button>
       ) : (
-        <button
-          className="auth-btn auth-btn-sidebar"
+        <Button
+          // className="auth-btn auth-btn-sidebar"
           onClick={() => setOpenAuthComponent(true)}
+          leftSection={<LogIn size={14} />}
+          variant={"info"}
+          className={"self-center"}
         >
-          <LogIn /> <span>Login</span>
-        </button>
+          Login
+        </Button>
       )}
     </section>
   );

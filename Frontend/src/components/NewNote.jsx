@@ -1,12 +1,16 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { NotesContext } from "../context/NotesContext.js";
 import notify from "../toasts/WarningToast.js";
 import { toast } from "react-toastify";
 import { VITE_BACKEND_URL } from "../utils/constants.js";
+import Button from "../ui/button.jsx";
+import { Ban, Pen } from "lucide-react";
 
 const NewNote = () => {
   const { refreshNotes, setRefreshNotes, setNewNote, setPlaceholder } =
     useContext(NotesContext);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateNewNote = async (event) => {
     event.preventDefault();
@@ -20,6 +24,7 @@ const NewNote = () => {
     const noteData = Object.fromEntries(new FormData(event.target));
 
     try {
+      setIsLoading(true);
       const response = await fetch(`${VITE_BACKEND_URL}/notes/create-note`, {
         method: "POST",
         headers: {
@@ -37,12 +42,13 @@ const NewNote = () => {
       const { message } = data;
       toast.success(message);
       setRefreshNotes(!refreshNotes);
+      event.target.reset();
     } catch (error) {
       console.error("Error while creating a new note: ", error.message);
       toast.error("Unable to create a new note: ", error.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    event.target.reset();
   };
 
   function handleCancelNoteButton() {
@@ -66,16 +72,33 @@ const NewNote = () => {
         name="content"
       ></textarea>
       <div className="btns">
-        <button type="submit" className="create-note">
+        {/* <button type="submit" className="create-note">
           Create Note
-        </button>
-        <button
+        </button> */}
+        <Button
+          variant={"info"}
+          isLoading={isLoading}
+          type={"submit"}
+          leftSection={<Pen size={14} />}
+        >
+          Create Note
+        </Button>
+        {/* <button
           type="button"
           className="cancel-note"
           onClick={handleCancelNoteButton}
         >
           Cancel Note
-        </button>
+        </button> */}
+        <Button
+          type={"button"}
+          onClick={handleCancelNoteButton}
+          variant={"error"}
+          disabled={isLoading}
+          leftSection={<Ban size={14} />}
+        >
+          Cancel Note
+        </Button>
       </div>
     </form>
   );
