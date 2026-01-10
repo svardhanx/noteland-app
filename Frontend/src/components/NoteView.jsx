@@ -24,8 +24,11 @@ const NoteView = () => {
 
   const isMobile = useIsMobile();
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
   async function handleDeleteNote() {
     try {
+      setIsDeleting(true);
       const response = await fetch(
         `${VITE_BACKEND_URL}/notes/delete-note/${currentSelectedNote.id}`,
         {
@@ -46,6 +49,8 @@ const NoteView = () => {
     } catch (error) {
       console.error("Error deleting the note: ", error.message);
       console.error("Cause of the error: ", error?.cause);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -70,6 +75,7 @@ const NoteView = () => {
             setOpenEditModal={setOpenEditModal}
             setOpenTaskDialog={setOpenTaskDialog}
             handleDeleteNote={handleDeleteNote}
+            isDeleting={isDeleting}
           />
         )}
       </div>

@@ -1,6 +1,6 @@
 @media screen and (min-width: 920px) {
   * {
-    padding: 0;
+    /* padding: 0; */
     margin: 0;
     box-sizing: border-box;
     font-family: inherit;
@@ -294,8 +294,9 @@
     gap: 1rem;
     background-color: white;
     width: 70%;
-    height: 60%;
+    /* height: 60%; */
     border-radius: 0.7rem;
+    padding: 1rem;
   }
 
   #input-title,
@@ -318,20 +319,28 @@
     gap: 1.5rem;
   }
 
-  .btns button {
+  /* .btns button {
     border: none;
     outline: none;
     padding: 0.5rem 1rem;
     border-radius: 0.7rem;
     cursor: pointer;
-  }
+    color: white;
+    transition: all linear 250ms;
+  } */
 
   .create-note {
     background-color: #42a5f5;
+    &:hover {
+      background-color: #0071e3;
+    }
   }
 
   .cancel-note {
     background-color: #ef5350;
+    &:hover {
+      background-color: #e61b1b;
+    }
   }
 
   .note-view {
