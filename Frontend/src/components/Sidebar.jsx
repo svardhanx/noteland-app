@@ -105,17 +105,18 @@ const Sidebar = () => {
       </div>
 
       {!isMobile && notesContainer && <NotesContainer />}
-      {user ? (
-        <Button
-          // className="auth-btn"
-          onClick={handleUserLogOut}
-          isLoading={authenticating}
-          leftSection={<LogOut size={14} />}
-          variant={"info"}
-          className={"self-center"}
-        >
-          Logout
-          {/* {authenticating ? (
+      <div className="w-full flex items-center justify-center">
+        {user ? (
+          <Button
+            // className="auth-btn"
+            onClick={handleUserLogOut}
+            isLoading={authenticating}
+            leftSection={<LogOut size={14} />}
+            variant={"info"}
+            // className={"self-center"}
+          >
+            Logout
+            {/* {authenticating ? (
             <p>Please wait...</p>
           ) : (
             <div className="auth-btn-sidebar">
@@ -123,18 +124,19 @@ const Sidebar = () => {
               <span>Logout</span>
             </div>
           )} */}
-        </Button>
-      ) : (
-        <Button
-          // className="auth-btn auth-btn-sidebar"
-          onClick={() => setOpenAuthComponent(true)}
-          leftSection={<LogIn size={14} />}
-          variant={"info"}
-          className={"self-center"}
-        >
-          Login
-        </Button>
-      )}
+          </Button>
+        ) : (
+          <Button
+            // className="auth-btn auth-btn-sidebar"
+            onClick={() => setOpenAuthComponent(true)}
+            leftSection={<LogIn size={14} />}
+            variant={"info"}
+            // className={"self-center"}
+          >
+            Login
+          </Button>
+        )}
+      </div>
     </section>
   );
 };

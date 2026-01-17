@@ -5,7 +5,8 @@ import jwt from "jsonwebtoken";
 const options = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" && "None", // sameSite: None requires secure to be true
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "lax", // sameSite: None requires secure to be true
+  // sameSite: "lax",
 };
 
 const registerController = async (req, res) => {
@@ -23,7 +24,7 @@ const registerController = async (req, res) => {
 
     const user = await db.query(
       "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-      [name, email, hashedPassword]
+      [name, email, hashedPassword],
     );
 
     return res.status(201).json({
@@ -53,7 +54,7 @@ const loginController = async function (req, res) {
 
     const existingUser = await db.query(
       "SELECT * FROM users WHERE email = $1",
-      [email]
+      [email],
     );
 
     if (existingUser?.rows?.length === 0) {
@@ -86,7 +87,7 @@ const loginController = async function (req, res) {
         process.env.TOKEN_SECRET,
         {
           expiresIn: process.env.TOKEN_EXPIRY,
-        }
+        },
       );
 
       if (!token) {
@@ -101,6 +102,8 @@ const loginController = async function (req, res) {
         await db.query("UPDATE users SET is_logged_in = true WHERE id = $1", [
           user.id,
         ]);
+
+        console.log("OPTIONS", options);
 
         return res
           .status(200)
@@ -173,7 +176,7 @@ const userController = async function (req, res) {
 
     const { rows, rowCount } = await db.query(
       "SELECT * FROM users WHERE id = $1",
-      [userId]
+      [userId],
     );
 
     if (rowCount === 0) {
