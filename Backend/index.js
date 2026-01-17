@@ -20,7 +20,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     origin: [process.env.FRONTEND_URL, process.env.LOCALHOST],
     credentials: true,
-  })
+  }),
 );
 
 app.use(cookieParser());
@@ -34,7 +34,7 @@ app.use("/api/notes", notesRouter);
 await createTables()
   .then(() => {
     app.listen(PORT, () =>
-      console.log(`Server stated. Listening on PORT: ${PORT}`)
+      console.log(`Server stated. Listening on PORT: ${PORT}`),
     );
   })
   .catch((error) => {

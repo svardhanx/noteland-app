@@ -47,11 +47,11 @@ export default function Button({
       onClick={onClick}
       type={type ? type : "button"}
       className={cn(
-        `border-none outline-none ${getBackground()} rounded-md py-2 px-4 flex items-center justify-center min-w-30 max-w-40 text-white cursor-pointer  ${
+        `border-none outline-none ${getBackground()} rounded-md py-2 px-4 flex items-center justify-center min-w-30 max-w-40 text-white cursor-pointer justify-self-center ${
           disabled && !isLoading ? "bg-gray-400 cursor-not-allowed!" : ""
         }
     ${isLoading ? "cursor-not-allowed!" : ""}`,
-        className
+        className,
       )}
     >
       {isLoading && <Spinner />}

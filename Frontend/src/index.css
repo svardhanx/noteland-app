@@ -10,6 +10,8 @@
   --warning: #f59e0b;
   --info: #2e75d4;
   --white: #fff;
+  --heading: #020817;
+  --sub-heading: #64748b;
 }
 
 @theme inline {
@@ -19,6 +21,8 @@
   --color-warning: var(--warning);
   --color-info: var(--info);
   --color-white: var(--white);
+  --color-heading: var(--heading);
+  --color-sub-heading: var(--sub-heading);
 }
 
 body {

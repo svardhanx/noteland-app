@@ -93,13 +93,18 @@ const AuthComponent = () => {
   }, [openAuthComponent, authComponentRef]);
 
   return (
-    <dialog ref={authComponentRef} className="auth-component-dialog">
+    <dialog
+      ref={authComponentRef}
+      className="auth-component-dialog max-w-150 w-full"
+    >
       <form method="dialog" className="auth-form" onSubmit={handleFormSubmit}>
-        <h2>{authKind === "login" ? "Login" : "Register"}</h2>
+        <h2 className="text-heading text-xl font-bold">
+          {authKind === "login" ? "Login" : "Register"}
+        </h2>
 
         {authKind === "register" && (
           <div className="field-group">
-            <label htmlFor="name" className="field-group-label">
+            <label htmlFor="name" className="field-group-label text-base">
               Name:
             </label>
             <input
@@ -114,7 +119,7 @@ const AuthComponent = () => {
         )}
 
         <div className="field-group">
-          <label htmlFor="email" className="field-group-label">
+          <label htmlFor="email" className="field-group-label text-base">
             Email address:
           </label>
           <input
