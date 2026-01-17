@@ -19,7 +19,6 @@ app.use(
   cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     origin: [process.env.FRONTEND_URL, process.env.LOCALHOST],
-    // origin: "https://x76km63z-5000.inc1.devtunnels.ms",
     credentials: true,
   }),
 );
