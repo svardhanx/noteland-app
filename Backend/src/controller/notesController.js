@@ -1,13 +1,27 @@
 import db from "../DB/db.js";
 
-const getAllNotes = async (req, res) => {
+export const getAllNotes = async (_, res) => {
   try {
-    const allNotes = await db.query(`
-      SELECT notes.id, notes.title, notes.content, COALESCE(json_agg(tasks) FILTER (WHERE tasks.id IS NOT NULL), '[]') AS tasks 
-      FROM notes 
-      LEFT JOIN tasks ON notes.id = tasks.note_id  
-      GROUP BY NOTES.id
-      `);
+    const allNotes = await db.execute(`
+      SELECT
+        notes.id,
+        notes.title,
+        notes.content,
+        COALESCE(
+          (SELECT json_group_array(
+            json_object(
+              'id', tasks.id,
+              'task_name', tasks.task_name,
+              'completed', tasks.completed
+            )
+          )
+          FROM tasks
+          WHERE tasks.note_id = notes.id),
+          '[]'
+        ) AS tasks
+      FROM notes
+      GROUP BY notes.id
+    `);
 
     if (allNotes?.rows?.length === 0) {
       return res
@@ -15,9 +29,14 @@ const getAllNotes = async (req, res) => {
         .json({ message: "No Notes available.", success: false });
     }
 
+    const formattedNotes = allNotes.rows.map((row) => ({
+      ...row,
+      tasks: typeof row.tasks === "string" ? JSON.parse(row.tasks) : row.tasks,
+    }));
+
     return res.status(200).json({
       message: "All notes fetched successfully.",
-      payload: allNotes.rows,
+      payload: formattedNotes,
       success: true,
     });
   } catch (error) {
@@ -29,7 +48,7 @@ const getAllNotes = async (req, res) => {
   }
 };
 
-const getAllUserNotes = async (req, res) => {
+export const getAllUserNotes = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -40,28 +59,27 @@ const getAllUserNotes = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      `
-      SELECT notes.id, 
-        notes.title, 
-        notes.content, 
-        notes.user_id, 
-        COALESCE(json_agg(tasks) FILTER (WHERE tasks.id IS NOT NULL), '[]') AS tasks
-      FROM notes 
-      LEFT JOIN tasks ON notes.id = tasks.note_id
-      WHERE notes.user_id = $1
-      GROUP BY notes.id 
-      `,
-      [userId]
-    );
+    const result = await db.execute({
+      sql: `
+       SELECT n.*,
+       (SELECT json_group_array(json_object('id', id, 'name', task_name))
+       FROM tasks WHERE note_id = n.id) as tasks
+       FROM notes n WHERE n.user_id = ?`,
+      args: [userId],
+    });
 
-    if (result.rowCount === 0) {
+    if (result.rows.length === 0) {
       return res.status(200).json({ message: "No notes found." });
     }
 
+    const notes = result.rows.map((row) => ({
+      ...row,
+      tasks: typeof row.tasks === "string" ? JSON.parse(row.tasks) : row.tasks,
+    }));
+
     return res.status(200).json({
       message: "All notes fetched successfully",
-      notes: result.rows,
+      notes,
       success: true,
     });
   } catch (error) {
@@ -73,7 +91,7 @@ const getAllUserNotes = async (req, res) => {
   }
 };
 
-const createNote = async (req, res) => {
+export const createNote = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -93,10 +111,10 @@ const createNote = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      "INSERT INTO notes (title, content, user_id) VALUES ($1, $2, $3) RETURNING *",
-      [title, content, userId]
-    );
+    const result = await db.execute({
+      sql: "INSERT INTO notes (title, content, user_id) VALUES (?, ?, ?) RETURNING *",
+      args: [title, content, userId],
+    });
 
     if (result?.rows?.length === 0) {
       return res.status(404).json({
@@ -119,7 +137,7 @@ const createNote = async (req, res) => {
   }
 };
 
-const createTask = async (req, res) => {
+export const createTask = async (req, res) => {
   try {
     const { task_name } = req.body;
     const { note_id } = req.params;
@@ -147,10 +165,10 @@ const createTask = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      "INSERT INTO tasks (note_id, task_name) VALUES ($1, $2) RETURNING *",
-      [note_id, task_name]
-    );
+    const result = await db.execute({
+      sql: "INSERT INTO tasks (note_id, task_name) VALUES (?, ?) RETURNING *",
+      args: [note_id, task_name],
+    });
 
     if (result?.rows?.length === 0) {
       return res.status(404).json({
@@ -168,7 +186,7 @@ const createTask = async (req, res) => {
   }
 };
 
-const updateNote = async (req, res) => {
+export const updateNote = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -179,7 +197,7 @@ const updateNote = async (req, res) => {
       });
     }
 
-    if (userId !== parseInt(req.body.user_id)) {
+    if (String(userId) !== String(req.body.user_id)) {
       return res.status(403).json({
         message: "Unauthorized. You're not allowed to update the note.",
         success: false,
@@ -204,15 +222,12 @@ const updateNote = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      `
-      UPDATE notes 
-      SET title = $1, content = $2 WHERE id = $3 RETURNING *
-      `,
-      [title, content, noteId]
-    );
+    const result = await db.execute({
+      sql: "UPDATE notes SET title = ?, content = ? WHERE id = ? RETURNING *",
+      args: [title, content, noteId],
+    });
 
-    if (result.rowCount === 0) {
+    if (result.rowsAffected === 0) {
       return res.status(404).json({
         message: "Unable to update the note.",
         success: false,
@@ -234,7 +249,7 @@ const updateNote = async (req, res) => {
   }
 };
 
-const updateTask = async (req, res) => {
+export const updateTask = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -254,17 +269,12 @@ const updateTask = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      `
-        UPDATE tasks 
-        SET completed = true
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
+    const result = await db.execute({
+      sql: ` UPDATE tasks SET completed = true WHERE id = ? RETURNING *`,
+      args: [id],
+    });
 
-    if (result.rowCount === 0) {
+    if (result.rowsAffected === 0) {
       return res.status(404).json({
         message: "Unable to update the task at this time.",
         success: false,
@@ -283,7 +293,7 @@ const updateTask = async (req, res) => {
   }
 };
 
-const deleteNote = async (req, res) => {
+export const deleteNote = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -303,17 +313,14 @@ const deleteNote = async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      `
-        DELETE FROM notes 
-        WHERE id = $1
-      `,
-      [id]
-    );
+    const result = await db.execute({
+      sql: "DELETE FROM notes WHERE id = ? AND user_id = ?",
+      args: [id, userId],
+    });
 
-    if (!result.rowCount === 0) {
+    if (result.rowsAffected === 0) {
       return res.status(404).json({
-        message: "Unable to delete the note at this time.",
+        message: "Note not found or it not authorised to delete the note.",
         success: false,
       });
     }
@@ -328,14 +335,4 @@ const deleteNote = async (req, res) => {
       success: false,
     });
   }
-};
-
-export {
-  createNote,
-  getAllNotes,
-  getAllUserNotes,
-  createTask,
-  updateNote,
-  updateTask,
-  deleteNote,
 };

@@ -1,11 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import createTables from "./src/DB/createTables.js";
-import notesRouter from "./src/routes/notesRoutes.js";
-import authRouter from "./src/routes/authRoutes.js";
+import createTables from "./DB/createTables.js";
+import notesRouter from "./routes/notesRoutes.js";
+import authRouter from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
-import healthCheckRoute from "./src/routes/healthCheckRoute.js";
+import healthCheckRoute from "./routes/healthCheckRoute.js";
 
 dotenv.config();
 
@@ -41,3 +41,5 @@ await createTables()
     console.log(red(`Error starting server: ${error}`));
     process.exit(1);
   });
+
+export default app;
