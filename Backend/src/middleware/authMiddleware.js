@@ -16,7 +16,7 @@ const verifyJWT = async (req, res, next) => {
 
     const decodedToken = jwt.verify(incomingToken, process.env.TOKEN_SECRET);
 
-    const user = await db.query("SELECT * FROM users WHERE id = $1", [
+    const user = await db.execute("SELECT * FROM users WHERE id = ?", [
       decodedToken?.id,
     ]);
 

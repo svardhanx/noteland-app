@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
 import { VITE_BACKEND_URL } from "../utils/constants";
+import Button from "../ui/button";
 
 const AuthComponent = () => {
   const {
@@ -47,7 +48,7 @@ const AuthComponent = () => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message ?? "Login failed. Please try again..."
+          errorData.message ?? "Login failed. Please try again...",
         );
       }
 
@@ -90,6 +91,7 @@ const AuthComponent = () => {
     return () => {
       document.removeEventListener("keydown", handleAuthComponent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openAuthComponent, authComponentRef]);
 
   return (
@@ -183,18 +185,14 @@ const AuthComponent = () => {
           </p>
         )}
 
-        <input
+        <Button
           type="submit"
-          value={
-            authKind === "login"
-              ? authenticating
-                ? "Authenticating..."
-                : "Login"
-              : "Register"
-          }
           disabled={authenticating}
+          isLoading={authenticating}
           className="login-btn"
-        />
+        >
+          {authKind === "login" ? "Login" : "Register"}
+        </Button>
       </form>
     </dialog>
   );

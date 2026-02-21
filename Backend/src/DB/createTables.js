@@ -1,11 +1,9 @@
 import db from "./db.js";
 
-const createTables = async () => {
+async function createTables() {
   try {
-    await db.connect();
-
-    await db.query(`CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
+    await db.execute(`CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
@@ -14,7 +12,7 @@ const createTables = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
 
-    await db.query(`CREATE TABLE IF NOT EXISTS notes (
+    await db.execute(`CREATE TABLE IF NOT EXISTS notes (
             id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             content TEXT NOT NULL,
@@ -22,7 +20,7 @@ const createTables = async () => {
             );
         `);
 
-    await db.query(`CREATE TABLE IF NOT EXISTS tasks (
+    await db.execute(`CREATE TABLE IF NOT EXISTS tasks (
         id SERIAL PRIMARY KEY,
         note_id INT REFERENCES notes(id) ON DELETE CASCADE,
         task_name TEXT NOT NULL,
@@ -35,6 +33,6 @@ const createTables = async () => {
     console.error("Error creating tables: ", error.message);
     throw error;
   }
-};
+}
 
 export default createTables;
