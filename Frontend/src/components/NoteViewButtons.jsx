@@ -1,10 +1,11 @@
 import { Delete, Edit } from "lucide-react";
 import PropTypes from "prop-types";
 import Button from "../ui/button";
+import { NOTE_VIEW_KINDS } from "../utils/constants";
 
 export default function NoteViewButtons({
-  setOpenEditModal,
   setOpenTaskDialog,
+  setNoteViewKind,
   handleDeleteNote,
   isDeleting,
 }) {
@@ -18,8 +19,9 @@ export default function NoteViewButtons({
       >
         New Task
       </Button>
+
       <Button
-        onClick={() => setOpenEditModal(true)}
+        onClick={() => setNoteViewKind(NOTE_VIEW_KINDS.EDIT)}
         leftSection={<Edit size={14} />}
         disabled={isDeleting}
       >
@@ -40,21 +42,8 @@ export default function NoteViewButtons({
 
 NoteViewButtons.propTypes = {
   setOpenTaskDialog: PropTypes.func,
+  setNoteViewKind: PropTypes.func,
   setOpenEditModal: PropTypes.func,
   handleDeleteNote: PropTypes.func,
   isDeleting: PropTypes.bool,
 };
-
-{
-  /* <>
-  <button className="new-task">
-    <Edit className="note-view-btn-icon" /> <span>New Task</span>
-  </button>
-  <button className="edit-note">
-    <Edit className="note-view-btn-icon" /> <span>Edit Note</span>
-  </button>
-  <button className="delete-note">
-    <Delete className="note-view-btn-icon" /> <span>Delete Note</span>
-  </button>
-</> */
-}

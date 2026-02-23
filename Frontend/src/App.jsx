@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { NotesContext } from "./context/NotesContext";
-import { VITE_BACKEND_URL } from "./utils/constants";
 import MainSection from "./components/MainSection";
-import Sidebar from "./components/Sidebar";
 import AuthComponent from "./components/AuthComponent";
 import NewNoteIcon from "./components/NewNoteIcon";
 import "./styles/mobile.css";
 import "./styles/tab.css";
 import "./styles/desktop.css";
+import Header from "./components/Header";
+import { apiEndPoints } from "./utils/apiEndpoints";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -21,6 +21,7 @@ function App() {
   const [currentSelectedNote, setCurrentSelectedNote] = useState({});
   const [currentSelectedNoteID, setCurrentSelectedNoteID] = useState(0);
   const [noteView, setNoteView] = useState(false);
+  const [noteViewKind, setNoteViewKind] = useState("");
   const [notesContainer, setNotesContainer] = useState(true);
 
   const [openAuthComponent, setOpenAuthComponent] = useState(false);
@@ -32,7 +33,7 @@ function App() {
   useEffect(() => {
     async function initMe() {
       try {
-        const response = await fetch(`${VITE_BACKEND_URL}/auth/me`, {
+        const response = await fetch(apiEndPoints.ME, {
           credentials: "include",
         });
         if (response.ok) {
@@ -63,11 +64,8 @@ function App() {
     (async function () {
       try {
         const [userResponse, userNotesResponse] = await Promise.all([
-          safeFetch(`${VITE_BACKEND_URL}/auth/get-user`, controller.signal),
-          safeFetch(
-            `${VITE_BACKEND_URL}/notes/get-user-notes`,
-            controller.signal,
-          ),
+          safeFetch(apiEndPoints.GET_USER, controller.signal),
+          safeFetch(apiEndPoints.GET_USER_NOTES, controller.signal),
         ]);
 
         if (userResponse.success) {
@@ -127,10 +125,12 @@ function App() {
         setAuthenticating,
         notesContainer,
         setNotesContainer,
+        noteViewKind,
+        setNoteViewKind,
       }}
     >
-      <div className="app">
-        <Sidebar />
+      <div className="flex flex-col relative min-h-dvh">
+        <Header />
         <MainSection newNote={newNote} placeholder={placeholder} />
         <AuthComponent />
         {user && !noteView && !newNote && <NewNoteIcon />}
