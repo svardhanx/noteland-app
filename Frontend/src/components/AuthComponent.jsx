@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
 import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
-import { VITE_BACKEND_URL } from "../utils/constants";
 import Button from "../ui/button";
+import { apiEndPoints } from "../utils/apiEndpoints";
 
 const AuthComponent = () => {
   const {
@@ -30,9 +30,8 @@ const AuthComponent = () => {
     setAuthenticating(true);
 
     try {
-      const url = `${VITE_BACKEND_URL}/auth/${
-        authKind === "login" ? "login" : "register"
-      }`;
+      const url =
+        authKind === "login" ? apiEndPoints.LOGIN : apiEndPoints.REGISTER;
 
       const response = await fetch(url, {
         method: "POST",

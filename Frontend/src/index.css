@@ -5,6 +5,7 @@
 
 :root {
   --primary: #26a69a;
+  --secondary: #5e35b1;
   --success: #018a23;
   --error: #de3333;
   --warning: #f59e0b;
@@ -16,6 +17,7 @@
 
 @theme inline {
   --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
   --color-success: var(--success);
   --color-error: var(--error);
   --color-warning: var(--warning);

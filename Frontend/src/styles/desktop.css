@@ -6,20 +6,6 @@
     font-family: inherit;
   }
 
-  /* .app {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        height: 100dvh;
-        overflow-y: hidden;
-        position: relative;
-    } */
-
-  .app {
-    display: grid;
-    grid-template-columns: 1fr 4fr;
-  }
-
   .new-note-icon {
     border-radius: 50%;
     position: absolute;
@@ -295,7 +281,7 @@
     padding: 1rem;
   }
 
-  #input-title,
+  /* #input-title,
   #input-content {
     border: none;
     border-bottom: 3px solid black;
@@ -308,7 +294,7 @@
   #input-content {
     resize: none;
     white-space: pre-wrap;
-  }
+  } */
 
   .btns {
     display: flex;
@@ -343,7 +329,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    height: 100vh;
+    /* height: 100vh; */
     width: 100%;
   }
 
