@@ -1,106 +1,100 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext } from "react";
 import { NotesContext } from "../context/NotesContext";
-import { VITE_BACKEND_URL } from "../utils/constants.js";
-import notify from "../toasts/WarningToast.js";
 import { toast } from "react-toastify";
-import PropTypes from "prop-types";
+import { Modal } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import FieldError from "./Common/FieldError.jsx";
+import { useMutation } from "../hooks/use-mutation.jsx";
+import { apiEndPoints } from "../utils/apiEndpoints.js";
+import Button from "../ui/button.jsx";
 
-const TaskCreator = ({ openTaskDialog, setOpenTaskDialog }) => {
-  const taskRef = useRef(null);
-  const dialogRef = useRef(null);
-
+const TaskCreator = () => {
   // CONTEXT
-  const { refreshNotes, setRefreshNotes, currentSelectedNote } =
-    useContext(NotesContext);
+  const {
+    refreshNotes,
+    setRefreshNotes,
+    currentSelectedNote,
+    openTaskDialog,
+    setOpenTaskDialog,
+  } = useContext(NotesContext);
 
-  useEffect(() => {
-    const ab = new AbortController();
-    const signal = ab.signal;
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({ defaultValues: { task_name: "" } });
 
-    function handleEscDialogClose(event) {
-      if (event.key === "Escape") {
-        setOpenTaskDialog(false);
-      }
-    }
-
-    if (openTaskDialog) {
-      dialogRef.current?.showModal();
-      document.addEventListener("keydown", handleEscDialogClose, { signal });
-    } else {
-      dialogRef.current?.close();
-    }
-
-    return () => ab.abort();
-  }, [openTaskDialog, setOpenTaskDialog]);
+  const taskMutation = useMutation();
 
   // FUNCTION HANDLE TASK SUBMISSION
-  const handleCreateTaskSubmission = async (event) => {
-    event.preventDefault();
-
-    const { current } = taskRef;
-
-    current.focus();
-
-    if (current.value === "") {
-      notify("Task field cannot be empty");
-      return;
-    }
-
-    const taskData = Object.fromEntries(new FormData(event.target));
-
-    event.target.reset();
+  async function handleCreateTaskSubmission(formdata) {
+    const url = `${apiEndPoints.CREATE_TASK}/${currentSelectedNote.id}`;
 
     try {
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/notes/create-task/${currentSelectedNote.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(taskData),
-          credentials: "include",
-        }
-      );
+      const result = await taskMutation.mutate(url, formdata, "POST");
 
-      const data = await response.json();
+      toast.success(result?.message);
 
-      toast.success(data.message);
-
-      setOpenTaskDialog(false);
+      handleClose();
       setRefreshNotes(!refreshNotes);
     } catch (error) {
       console.error("Error while creating task: ", error.message);
       toast.error("Error while creating task");
     }
-  };
+  }
+
+  function handleClose() {
+    setOpenTaskDialog(false);
+    reset();
+  }
 
   return (
-    <dialog ref={dialogRef} className="task-creator-dialog">
+    <Modal
+      open={openTaskDialog}
+      onClose={handleClose}
+      className="flex items-center justify-center"
+    >
       <form
         method="dialog"
-        className="task-creator"
-        onSubmit={handleCreateTaskSubmission}
+        className="flex flex-col gap-3 p-4 bg-white border-2 border-white rounded-md w-xl"
+        onSubmit={handleSubmit(handleCreateTaskSubmission)}
       >
-        <h3>Enter new Task:</h3>
-        <input
-          type="text"
-          placeholder="Task Name"
-          id="task-input"
+        <h3 className="font-semibold text-xl">Enter New Task:</h3>
+        <Controller
+          control={control}
           name="task_name"
-          ref={taskRef}
+          rules={{
+            required: "task name is required",
+          }}
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col gap-1">
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="Task Name"
+                  className="outline-0 p-2 rounded-md text-lg border-2 border-black w-full"
+                />
+                {errors?.task_name?.message && (
+                  <FieldError message={errors?.task_name?.message} />
+                )}
+              </div>
+            );
+          }}
         />
-        <button className="create-task-btn" type="submit">
-          Create Task
-        </button>
-      </form>
-    </dialog>
-  );
-};
 
-TaskCreator.propTypes = {
-  openTaskDialog: PropTypes.bool,
-  setOpenTaskDialog: PropTypes.func,
+        <Button
+          className="bg-info"
+          type="submit"
+          isLoading={taskMutation.isLoading}
+          disabled={taskMutation.isLoading}
+        >
+          Create Task
+        </Button>
+      </form>
+    </Modal>
+  );
 };
 
 export default TaskCreator;

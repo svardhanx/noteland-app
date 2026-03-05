@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { NotesContext } from "../context/NotesContext.js";
 import { toast } from "react-toastify";
 import Button from "../ui/button.jsx";
@@ -6,6 +6,7 @@ import { Ban, Pen } from "lucide-react";
 import { Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { apiEndPoints } from "../utils/apiEndpoints.js";
+import { useMutation } from "../hooks/use-mutation.jsx";
 
 const defaultValues = {
   title: "",
@@ -13,10 +14,8 @@ const defaultValues = {
 };
 
 const NewNote = () => {
-  const { refreshNotes, setRefreshNotes, newNote, setNewNote, setPlaceholder } =
+  const { setRefreshNotes, newNote, setNewNote, setPlaceholder } =
     useContext(NotesContext);
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const {
     control,
@@ -25,32 +24,20 @@ const NewNote = () => {
     reset,
   } = useForm({ defaultValues });
 
+  const { mutate, isLoading } = useMutation();
+
   const handleCreateNewNote = async (noteData) => {
     try {
-      setIsLoading(true);
-      const response = await fetch(apiEndPoints.CREATE_NOTE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(noteData),
-        credentials: "include",
-      });
+      const result = await mutate(apiEndPoints.CREATE_NOTE, noteData, "POST");
 
-      if (!response.ok) {
-        throw new Error("Something wen't wrong.");
-      }
+      toast.success(result?.message);
 
-      const data = await response.json();
-      const { message } = data;
-      toast.success(message);
-      setRefreshNotes(!refreshNotes);
+      setRefreshNotes((prev) => !prev);
+
       handleClose();
     } catch (error) {
       console.error("Error while creating a new note: ", error.message);
       toast.error("Unable to create a new note: ", error.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 

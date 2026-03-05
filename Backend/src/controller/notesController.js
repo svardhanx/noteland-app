@@ -62,7 +62,7 @@ export const getAllUserNotes = async (req, res) => {
     const result = await db.execute({
       sql: `
        SELECT n.*,
-       (SELECT json_group_array(json_object('id', id, 'name', task_name))
+       (SELECT json_group_array(json_object('id', id, 'task_name', task_name, 'completed', completed))
        FROM tasks WHERE note_id = n.id) as tasks
        FROM notes n WHERE n.user_id = ?`,
       args: [userId],
@@ -74,7 +74,10 @@ export const getAllUserNotes = async (req, res) => {
 
     const notes = result.rows.map((row) => ({
       ...row,
-      tasks: typeof row.tasks === "string" ? JSON.parse(row.tasks) : row.tasks,
+      tasks: JSON.parse(row.tasks || "[]").map((task) => ({
+        ...task,
+        completed: task.completed === 1 || task.completed === true,
+      })),
     }));
 
     return res.status(200).json({
@@ -260,7 +263,7 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    const { id } = req.params;
+    const { id, status } = req.body;
 
     if (!id) {
       return res.status(404).json({
@@ -270,8 +273,8 @@ export const updateTask = async (req, res) => {
     }
 
     const result = await db.execute({
-      sql: ` UPDATE tasks SET completed = true WHERE id = ? RETURNING *`,
-      args: [id],
+      sql: ` UPDATE tasks SET completed = $status WHERE id = $id RETURNING *`,
+      args: { status, id },
     });
 
     if (result.rowsAffected === 0) {

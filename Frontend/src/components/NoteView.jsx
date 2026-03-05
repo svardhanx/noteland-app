@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { NotesContext } from "../context/NotesContext";
 import TaskCreator from "./TaskCreator";
 import TaskManager from "./TaskManager";
@@ -10,8 +10,9 @@ import NoteViewButtons from "./NoteViewButtons";
 import { useIsMobile } from "../hooks/use-mobile";
 import { Controller, useForm } from "react-hook-form";
 import Button from "../ui/button";
-import { Edit } from "lucide-react";
+import { CircleX, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
+import { useMutation } from "../hooks/use-mutation";
 
 const NoteView = () => {
   const {
@@ -33,75 +34,55 @@ const NoteView = () => {
 
   const { control, reset, handleSubmit } = useForm({ defaultValues });
 
-  const [openTaskDialog, setOpenTaskDialog] = useState(false);
-
   // const [openEditModal, setOpenEditModal] = useState(false);
 
   const isMobile = useIsMobile();
 
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const editMutation = useMutation();
+
+  const deleteMutation = useMutation();
 
   function handleClose() {
     reset();
     setNoteViewKind(NOTE_VIEW_KINDS.VIEW);
-    setIsUpdating(false);
   }
 
   async function handleDeleteNote() {
     try {
-      setIsDeleting(true);
-      const response = await fetch(
+      const result = await deleteMutation.mutate(
         `${apiEndPoints.DELETE_NOTE}/${currentSelectedNote.id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
+        null,
+        "DELETE",
       );
 
-      if (!response.ok) {
-        throw new Error("Server didn't respond with a success state.");
-      }
-
-      const data = await response.json();
-      toast.success(data.message);
+      toast.success(result?.message);
       setNoteView(false);
       setRefreshNotes(!refreshNotes);
     } catch (error) {
       console.error("Error deleting the note: ", error.message);
       console.error("Cause of the error: ", error?.cause);
-    } finally {
-      setIsDeleting(false);
     }
   }
 
-  async function handleEdit(data) {
+  async function handleEdit(formdata) {
     const payload = {
-      ...data,
+      ...formdata,
       id: currentSelectedNote.id,
       user_id: currentSelectedNote.user_id,
     };
-    setIsUpdating(true);
 
     try {
-      const response = await fetch(apiEndPoints.UPDATE_NOTE, {
-        method: "PUT",
-        credentials: "include",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const result = await editMutation.mutate(
+        apiEndPoints.UPDATE_NOTE,
+        payload,
+        "PUT",
+      );
 
-      if (!response.ok) {
-        throw new Error("Server didn't respond with a success state.");
-      }
-
-      const data = await response.json();
-      toast.success(data.message);
+      toast.success(result?.message);
       setRefreshNotes(!refreshNotes);
-      setCurrentSelectedNote(data.data);
+      setCurrentSelectedNote(result?.data);
       handleClose();
+      editMutation.reset();
     } catch (error) {
       console.error(error);
     }
@@ -127,7 +108,7 @@ const NoteView = () => {
             NOTE TITLE:
           </p>
           <div className="flex items-center justify-between gap-2">
-            <section className="w-full">
+            <section>
               {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
                 <Controller
                   control={control}
@@ -149,22 +130,30 @@ const NoteView = () => {
 
             <section>
               {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
-                <Button
-                  type={"submit"}
-                  leftSection={<Edit size={14} />}
-                  disabled={isUpdating}
-                  isLoading={isUpdating}
-                  className={"w-fit shrink-0"}
-                >
-                  Update
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type={"submit"}
+                    leftSection={<Edit size={16} />}
+                    disabled={editMutation.isLoading}
+                    isLoading={editMutation.isLoading}
+                    className={"w-fit shrink-0"}
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    type={"button"}
+                    leftSection={<CircleX size={16} />}
+                    onClick={() => setNoteViewKind(NOTE_VIEW_KINDS.VIEW)}
+                    disabled={editMutation.isLoading}
+                    variant="error"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               ) : (
                 <NoteViewButtons
-                  // setOpenEditModal={setOpenEditModal}
-                  setOpenTaskDialog={setOpenTaskDialog}
-                  setNoteViewKind={setNoteViewKind}
                   handleDeleteNote={handleDeleteNote}
-                  isDeleting={isDeleting}
+                  isDeleting={deleteMutation.isLoading}
                 />
               )}
             </section>
@@ -206,22 +195,20 @@ const NoteView = () => {
           {currentSelectedNote?.tasks?.length > 0 && (
             <TaskManager tasks={currentSelectedNote.tasks} />
           )}
+
           {isMobile && (
             <div className="flex flex-col gap-0.5">
               <div className="separator"></div>
               <NoteViewButtons
-                // setOpenEditModal={setOpenEditModal}
-                setOpenTaskDialog={setOpenTaskDialog}
                 handleDeleteNote={handleDeleteNote}
+                isDeleting={deleteMutation.isLoading}
               />
             </div>
           )}
         </div>
       </form>
-      <TaskCreator
-        openTaskDialog={openTaskDialog}
-        setOpenTaskDialog={setOpenTaskDialog}
-      />
+
+      <TaskCreator />
 
       {/* <EditNoteModal
         openEditModal={openEditModal}

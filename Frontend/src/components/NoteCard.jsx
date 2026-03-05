@@ -15,7 +15,7 @@ export default function NoteCard({ note }) {
 
   return (
     <div
-      className="bg-white rounded-md flex flex-col gap-2 w-80 h-32 py-4 cursor-pointer"
+      className="bg-white rounded-md flex flex-col gap-2 flex-auto w-full h-32 py-4 cursor-pointer"
       onClick={renderNoteView}
     >
       <p className="text-black pl-2 font-semibold underline text-center">

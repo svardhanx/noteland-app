@@ -17,7 +17,7 @@ notesRouter.get("/all-notes", getAllNotes);
 notesRouter.get("/get-user-notes", verifyJWT, getAllUserNotes);
 notesRouter.post("/create-note", verifyJWT, createNote);
 notesRouter.post("/create-task/:note_id", verifyJWT, createTask);
-notesRouter.patch("/update-task/:id", verifyJWT, updateTask);
+notesRouter.patch("/update-task", verifyJWT, updateTask);
 notesRouter.put("/update-note", verifyJWT, updateNote);
 notesRouter.delete("/delete-note/:id", verifyJWT, deleteNote);
 
