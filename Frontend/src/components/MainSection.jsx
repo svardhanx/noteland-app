@@ -8,13 +8,13 @@ const MainSection = () => {
   const { noteView } = useContext(NotesContext);
 
   return (
-    <section
-      className="flex bg-secondary flex-auto overflow-y-auto"
+    <main
+      className="flex bg-secondary flex-auto overflow-y-hidden h-screen"
       data-component="main-section"
     >
       <NewNote />
       {noteView ? <NoteView /> : <AllNotes />}
-    </section>
+    </main>
   );
 };
 

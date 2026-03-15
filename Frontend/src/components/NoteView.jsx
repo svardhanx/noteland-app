@@ -95,11 +95,11 @@ const NoteView = () => {
   }, [isEdit]);
 
   return (
-    <div
-      className="flex flex-col w-full h-auto flex-auto overflow-y-auto"
-      data-component="note-view"
-    >
-      <form onSubmit={handleSubmit(handleEdit)}>
+    <div className="flex flex-col w-full" data-component="note-view">
+      <form
+        onSubmit={handleSubmit(handleEdit)}
+        className="flex flex-col gap-2 flex-auto min-h-0"
+      >
         <div
           className="flex flex-col gap-2 p-4"
           data-element="note-view-heading"
@@ -187,9 +187,9 @@ const NoteView = () => {
               }}
             />
           ) : (
-            <p className="py-4 whitespace-pre-wrap overflow-y-auto text-white">
+            <div className="py-4 whitespace-pre-wrap text-white">
               {currentSelectedNote.content}
-            </p>
+            </div>
           )}
 
           {currentSelectedNote?.tasks?.length > 0 && (
