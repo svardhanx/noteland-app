@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { NotesContext } from "../context/NotesContext";
 import { Fab } from "@mui/material";
 import { Plus } from "lucide-react";
-import { NOTE_VIEW_KINDS } from "../utils/constants";
+// import { NOTE_VIEW_KINDS } from "../utils/constants";
 
 const NewNoteIcon = () => {
   const { setNewNote, setPlaceholder, setNoteView, setNoteViewKind } =
@@ -26,7 +26,7 @@ const NewNoteIcon = () => {
     //     onClick={handleNewNoteButton}
     //   />
     // </div>
-    <div className="absolute right-5 bottom-10" onClick={handleNewNoteButton}>
+    <div className="absolute right-5 bottom-20" onClick={handleNewNoteButton}>
       <Fab color="primary" aria-label="add" size="medium" title="Add a note">
         <Plus />
       </Fab>
