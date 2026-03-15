@@ -9,7 +9,7 @@ const MainSection = () => {
 
   return (
     <main
-      className="flex bg-secondary flex-auto overflow-y-hidden h-screen"
+      className="flex bg-secondary flex-auto min-h-0"
       data-component="main-section"
     >
       <NewNote />

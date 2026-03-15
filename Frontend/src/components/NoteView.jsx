@@ -95,7 +95,7 @@ const NoteView = () => {
   }, [isEdit]);
 
   return (
-    <div className="flex flex-col w-full" data-component="note-view">
+    <div className="flex flex-col w-full h-full" data-component="note-view">
       <form
         onSubmit={handleSubmit(handleEdit)}
         className="flex flex-col gap-2 flex-auto min-h-0"
@@ -107,7 +107,7 @@ const NoteView = () => {
           <p className="text-white underline underline-offset-3 uppercase font-bold">
             NOTE TITLE:
           </p>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
             <section>
               {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
                 <Controller
@@ -128,7 +128,7 @@ const NoteView = () => {
               )}
             </section>
 
-            <section>
+            <section className="hidden md:flex md:items-center md:gap-2">
               {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
                 <div className="flex items-center gap-2">
                   <Button
@@ -161,9 +161,11 @@ const NoteView = () => {
         </div>
 
         <div className="w-full h-0.5 bg-white" />
+
         {/* CONTENT DIV */}
+
         <div
-          className="flex flex-col rounded-lg p-4 gap-4 flex-auto overflow-y-auto"
+          className="flex flex-col rounded-lg p-4 gap-4 overflow-y-auto flex-1 min-h-0"
           data-element="note-view-content"
         >
           <p className="text-white underline underline-offset-6 uppercase font-bold">
@@ -198,7 +200,7 @@ const NoteView = () => {
 
           {isMobile && (
             <div className="flex flex-col gap-0.5">
-              <div className="separator"></div>
+              {/* <div className="separator"></div>*/}
               <NoteViewButtons
                 handleDeleteNote={handleDeleteNote}
                 isDeleting={deleteMutation.isLoading}
@@ -209,12 +211,6 @@ const NoteView = () => {
       </form>
 
       <TaskCreator />
-
-      {/* <EditNoteModal
-        openEditModal={openEditModal}
-        setOpenEditModal={setOpenEditModal}
-        currentSelectedNote={currentSelectedNote}
-      /> */}
     </div>
   );
 };

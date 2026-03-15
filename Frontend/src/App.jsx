@@ -142,7 +142,7 @@ function App() {
         setOpenTaskDialog,
       }}
     >
-      <div className="flex flex-col relative min-h-dvh">
+      <div className="flex flex-col h-dvh overflow-hidden">
         <Header />
         <MainSection newNote={newNote} placeholder={placeholder} />
         <LoginComponent />
