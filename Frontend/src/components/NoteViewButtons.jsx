@@ -1,16 +1,15 @@
+import { useContext } from "react";
 import { Delete, Edit } from "lucide-react";
 import PropTypes from "prop-types";
 import Button from "../ui/button";
 import { NOTE_VIEW_KINDS } from "../utils/constants";
+import { NotesContext } from "../context/NotesContext";
 
-export default function NoteViewButtons({
-  setOpenTaskDialog,
-  setNoteViewKind,
-  handleDeleteNote,
-  isDeleting,
-}) {
+export default function NoteViewButtons({ handleDeleteNote, isDeleting }) {
+  const { setOpenTaskDialog, setNoteViewKind } = useContext(NotesContext);
+
   return (
-    <div className="note-view-btns">
+    <div className="flex items-center gap-2">
       <Button
         onClick={() => setOpenTaskDialog(true)}
         leftSection={<Edit size={14} />}
@@ -41,9 +40,6 @@ export default function NoteViewButtons({
 }
 
 NoteViewButtons.propTypes = {
-  setOpenTaskDialog: PropTypes.func,
-  setNoteViewKind: PropTypes.func,
-  setOpenEditModal: PropTypes.func,
   handleDeleteNote: PropTypes.func,
   isDeleting: PropTypes.bool,
 };

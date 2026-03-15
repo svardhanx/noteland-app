@@ -2,12 +2,14 @@ import PropTypes from "prop-types";
 import { useContext } from "react";
 import { toast } from "react-toastify";
 import { NotesContext } from "../context/NotesContext";
-import { VITE_BACKEND_URL } from "../utils/constants";
+import { apiEndPoints } from "../utils/apiEndpoints";
+import { useMutation } from "../hooks/use-mutation";
 
 const CurrentTasks = ({ task }) => {
   const { refreshNotes, setRefreshNotes } = useContext(NotesContext);
 
-  // TASK COMPLETION HANDLER FUNCTION
+  const updateTaskMutation = useMutation();
+
   async function handleTaskCompletion(id) {
     if (!id) {
       toast.error("Task ID not found..");
@@ -15,22 +17,13 @@ const CurrentTasks = ({ task }) => {
     }
 
     try {
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/notes/update-task/${id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-        }
-      );
+      const url = apiEndPoints.UPDATE_TASK;
 
-      if (!response.ok) {
-        toast.error("Something wen't wrong while updating the task status.");
-        return;
-      }
-      const data = await response.json();
+      const payload = { id, status: true };
 
-      const { message } = data;
-      toast.success(message);
+      const result = await updateTaskMutation.mutate(url, payload, "PATCH");
+
+      toast.success(result?.message);
 
       setRefreshNotes(!refreshNotes);
     } catch (error) {
@@ -39,19 +32,17 @@ const CurrentTasks = ({ task }) => {
   }
 
   return (
-    <>
-      <div className="curr-task">
-        <input
-          type="checkbox"
-          name="current-task"
-          id="current-task"
-          className="checkbox"
-          onClick={() => handleTaskCompletion(task.id)}
-          value={task?.task_name}
-        />
-        <label>{task?.task_name}</label>
-      </div>
-    </>
+    <div className="flex items-center gap-2.5">
+      <input
+        type="checkbox"
+        name="current-task"
+        id="current-task"
+        className="w-4 h-4 rounded-full cursor-pointer appearance-none border-[0.095rem] p-1 border-[#c09494]"
+        onClick={() => handleTaskCompletion(task.id)}
+        value={task?.task_name}
+      />
+      <label className="text-white">{task?.task_name}</label>
+    </div>
   );
 };
 

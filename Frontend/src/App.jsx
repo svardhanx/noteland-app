@@ -1,13 +1,14 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { NotesContext } from "./context/NotesContext";
 import MainSection from "./components/MainSection";
-import AuthComponent from "./components/AuthComponent";
 import NewNoteIcon from "./components/NewNoteIcon";
-import "./styles/mobile.css";
-import "./styles/tab.css";
-import "./styles/desktop.css";
+// import "./styles/mobile.css";
+// import "./styles/tab.css";
+// import "./styles/desktop.css";
 import Header from "./components/Header";
 import { apiEndPoints } from "./utils/apiEndpoints";
+import LoginComponent from "./components/Auth/LoginComponent";
+import SignUpComponent from "./components/Auth/SignUpComponent";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -24,11 +25,19 @@ function App() {
   const [noteViewKind, setNoteViewKind] = useState("");
   const [notesContainer, setNotesContainer] = useState(true);
 
-  const [openAuthComponent, setOpenAuthComponent] = useState(false);
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  const [openLoginComponent, setOpenLoginComponent] = useState(false);
+  const [openSignUpComponent, setOpenSignUpComponent] = useState(false);
 
   const [authenticating, setAuthenticating] = useState(false);
 
-  const authComponentRef = useRef(null);
+  function resetAfterLogout() {
+    setUser(null);
+    setUserLoggedIn(false);
+    setAllNotes([]);
+    setNoteView(false);
+    setPlaceholder(true);
+  }
 
   useEffect(() => {
     async function initMe() {
@@ -104,9 +113,10 @@ function App() {
         setUser,
         userLoggedIn,
         setUserLoggedIn,
-        openAuthComponent,
-        setOpenAuthComponent,
-        authComponentRef,
+        openLoginComponent,
+        setOpenLoginComponent,
+        openSignUpComponent,
+        setOpenSignUpComponent,
         allNotes,
         setAllNotes,
         placeholder,
@@ -127,12 +137,16 @@ function App() {
         setNotesContainer,
         noteViewKind,
         setNoteViewKind,
+        resetAfterLogout,
+        openTaskDialog,
+        setOpenTaskDialog,
       }}
     >
       <div className="flex flex-col relative min-h-dvh">
         <Header />
         <MainSection newNote={newNote} placeholder={placeholder} />
-        <AuthComponent />
+        <LoginComponent />
+        <SignUpComponent />
         {user && !noteView && !newNote && <NewNoteIcon />}
       </div>
     </NotesContext.Provider>

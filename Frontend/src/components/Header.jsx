@@ -3,8 +3,9 @@ import { NotesContext } from "../context/NotesContext";
 import { useIsMobile } from "../hooks/use-mobile";
 import Button from "../ui/button";
 import { toast } from "react-toastify";
-import { VITE_BACKEND_URL } from "../utils/constants";
 import { LogIn, LogOut } from "lucide-react";
+import { apiEndPoints } from "../utils/apiEndpoints";
+import { useMutation } from "../hooks/use-mutation";
 
 export default function Header() {
   const {
@@ -13,12 +14,8 @@ export default function Header() {
     setPlaceholder,
     setNoteView,
     setNotesContainer,
-    setUser,
-    setUserLoggedIn,
-    authenticating,
-    setAuthenticating,
-    setAllNotes,
-    setOpenAuthComponent,
+    setOpenLoginComponent,
+    resetAfterLogout,
   } = useContext(NotesContext);
 
   function goHome() {
@@ -28,35 +25,19 @@ export default function Header() {
     useIsMobile && setNotesContainer(true);
   }
 
+  const { mutate, isLoading } = useMutation();
+
   async function handleUserLogOut() {
-    setAuthenticating(true);
     try {
-      const url = `${VITE_BACKEND_URL}/auth/logout`;
+      const url = apiEndPoints.LOGOUT;
 
-      const response = await fetch(url, {
-        method: "POST",
-        credentials: "include",
-      });
+      const result = await mutate(url, null, "POST");
 
-      if (!response.ok) {
-        throw new Error("Error in fetch request");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success(data.message);
-        setUser(null);
-        setUserLoggedIn(false);
-        setAllNotes([]);
-        setNoteView(false);
-        setPlaceholder(true);
-      }
+      toast.success(result?.message);
+      resetAfterLogout();
     } catch (error) {
       console.error("Error occurred in handleUserLogOut:", error);
       toast.error(`Error while logging out => ${error.message}`);
-    } finally {
-      setAuthenticating(false);
     }
   }
 
@@ -76,7 +57,7 @@ export default function Header() {
         {user ? (
           <Button
             onClick={handleUserLogOut}
-            isLoading={authenticating}
+            isLoading={isLoading}
             leftSection={<LogOut size={14} />}
             variant={"info"}
           >
@@ -84,7 +65,7 @@ export default function Header() {
           </Button>
         ) : (
           <Button
-            onClick={() => setOpenAuthComponent(true)}
+            onClick={() => setOpenLoginComponent(true)}
             leftSection={<LogIn size={14} />}
             variant={"info"}
           >
