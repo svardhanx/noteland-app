@@ -40,7 +40,6 @@ export default function LoginComponent() {
 
       const result = await mutate(url, payload, "POST");
 
-      console.log("result");
       toast.success(result?.message);
       setRefreshNotes((prev) => !prev);
       setUser(result?.user);

@@ -34,11 +34,11 @@ app.use("/api/notes", notesRouter);
 await createTables()
   .then(() => {
     app.listen(PORT, () =>
-      console.log(`Server stated. Listening on PORT: ${PORT}`),
+      console.info(`Server stated. Listening on PORT: ${PORT}`),
     );
   })
   .catch((error) => {
-    console.log(red(`Error starting server: ${error}`));
+    console.error(red(`Error starting server: ${error}`));
     process.exit(1);
   });
 

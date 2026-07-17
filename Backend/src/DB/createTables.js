@@ -30,7 +30,7 @@ async function createTables() {
         );
       `);
 
-    console.log("Tables - NOTES, TASKS, USERS are ready.");
+    console.info("Tables - NOTES, TASKS, USERS are ready.");
   } catch (error) {
     console.error("Error creating tables: ", error.message);
     throw error;

@@ -52,7 +52,6 @@ export default function EditNoteModal({
     formData.append("user_id", note.user_id);
     const payload = Object.fromEntries(formData);
 
-    // console.log("payload", payload);
     try {
       const response = await fetch(`${VITE_BACKEND_URL}/notes/update-note`, {
         method: "PUT",

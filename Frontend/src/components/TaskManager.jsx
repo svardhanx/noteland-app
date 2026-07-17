@@ -3,8 +3,6 @@ import CurrentTasks from "./CurrentTasks";
 import PropTypes from "prop-types";
 
 const TaskManager = ({ tasks }) => {
-  console.log("tasks", tasks);
-
   const hasTasks = tasks?.length > 0;
 
   const pendingTasks = hasTasks ? tasks?.filter((task) => !task.completed) : [];
