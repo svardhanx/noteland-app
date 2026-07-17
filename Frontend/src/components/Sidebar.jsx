@@ -28,8 +28,6 @@ const Sidebar = () => {
 
   const isMobile = useIsMobile();
 
-  // console.log("isMobile", isMobile);
-
   // const notesContainerRef = useRef(null);
 
   // const handleNewNoteButton = () => {
