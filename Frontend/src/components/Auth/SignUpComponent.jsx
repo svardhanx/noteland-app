@@ -81,12 +81,13 @@ export default function SignUpComponent() {
             Password must be greater than 8 characters!
           </span>
         )}
-        <div className="password-checkbox">
+        <div className="flex items-center gap-1">
           <input
             type="checkbox"
             name="checkbox"
             id="show-password"
             onChange={() => setShowPassword((prev) => !prev)}
+            className="w-4 h-4"
           />
           <label htmlFor="show-password">Show password</label>
         </div>
