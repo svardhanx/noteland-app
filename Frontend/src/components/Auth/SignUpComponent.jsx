@@ -1,8 +1,8 @@
 import { Modal } from "@mui/material";
 import { useContext } from "react";
-import { NotesContext } from "../../context/NotesContext";
 import { useState } from "react";
 import Button from "../../ui/button";
+import { NotesContext } from "../../context/NotesContext";
 
 export default function SignUpComponent() {
   const {
@@ -27,7 +27,7 @@ export default function SignUpComponent() {
       className="flex items-center justify-center"
     >
       <form
-        className="bg-white flex flex-col items-center justify-center p-4 gap-3 rounded-md w-2/5"
+        className="bg-white flex flex-col items-center justify-center p-3 md:p-4 gap-3 rounded-md mx-3 md:mx-0 w-full md:w-1/2 lg:w-2/5"
         // onSubmit={handleFormSubmit}
       >
         <h2 className="text-heading text-xl font-bold">Register</h2>
@@ -40,7 +40,7 @@ export default function SignUpComponent() {
             type="text"
             name="name"
             id="name"
-            className="w-full outline-0 p-4 rounded-md border-2 border-black"
+            className="w-full outline-0 p-2 md:p-4 rounded-md border-2 border-black"
             placeholder="Enter your name"
             required
           />
@@ -54,7 +54,7 @@ export default function SignUpComponent() {
             type="email"
             name="email"
             id="email"
-            className="w-full outline-0 p-4 rounded-md border-2 border-black"
+            className="w-full outline-0 p-2 md:p-4 rounded-md border-2 border-black"
             placeholder="Enter email address"
             autoComplete="on"
             required
@@ -69,7 +69,7 @@ export default function SignUpComponent() {
             type={showPassword ? "text" : "password"}
             name="password"
             id="password"
-            className="w-full outline-0 p-4 rounded-md border-2 border-black"
+            className="w-full outline-0 p-2 md:p-4 rounded-md border-2 border-black"
             placeholder="Enter password"
             required
             minLength={8}
@@ -92,10 +92,10 @@ export default function SignUpComponent() {
           <label htmlFor="show-password">Show password</label>
         </div>
 
-        <p>
+        <p className="text-sm">
           Already have an account?{" "}
           <span
-            className="here-text"
+            className="cursor-pointer underline text-info"
             onClick={() => {
               setOpenSignUpComponent(false);
               setOpenLoginComponent(true);

@@ -6,16 +6,18 @@ import { toast } from "react-toastify";
 import { LogIn, LogOut } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { Skeleton } from "@mui/material";
 
 export default function Header() {
   const {
-    user,
+    userLoggedIn,
     setNewNote,
     setPlaceholder,
     setNoteView,
     setNotesContainer,
     setOpenLoginComponent,
     resetAfterLogout,
+    notesLoading,
   } = useContext(NotesContext);
 
   function goHome() {
@@ -54,7 +56,9 @@ export default function Header() {
       </div>
 
       <div>
-        {user ? (
+        {notesLoading ? (
+          <Skeleton variant="rounded" width={120} height={40} />
+        ) : userLoggedIn ? (
           <Button
             onClick={handleUserLogOut}
             isLoading={isLoading}

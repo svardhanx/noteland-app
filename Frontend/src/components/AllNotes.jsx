@@ -1,11 +1,12 @@
 import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import NoteCard from "./NoteCard";
+import { NotesContext } from "../context/NotesContext";
+import { Skeleton } from "@mui/material";
 
 const AllNotes = () => {
-  const { allNotes, user } = useContext(NotesContext);
+  const { allNotes, notesLoading, userLoggedIn } = useContext(NotesContext);
 
-  if (!user) {
+  if (!userLoggedIn) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center w-full">
         <img src="./folder.png" alt="Folder Image" className="w-87 h-87" />
@@ -25,6 +26,20 @@ const AllNotes = () => {
           {allNotes?.map((note) => (
             <NoteCard key={note?.id} note={note} />
           ))}
+        </div>
+      ) : notesLoading ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          {Array.from({ length: 19 }, () => crypto.randomUUID()).map((k) => {
+            return (
+              <Skeleton
+                key={k}
+                variant="rounded"
+                width={210}
+                height={120}
+                className="grow"
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 flex-auto">

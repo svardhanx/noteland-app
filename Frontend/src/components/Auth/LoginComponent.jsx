@@ -65,7 +65,7 @@ export default function LoginComponent() {
       className="flex items-center justify-center"
     >
       <form
-        className="bg-white flex flex-col items-center justify-center p-4 gap-3 rounded-md w-1/2 lg:w-2/5"
+        className="bg-white flex flex-col items-center justify-center p-3 md:p-4 gap-3 rounded-md w-full mx-3 md:mx-0 md:w-1/2 lg:w-2/5"
         onSubmit={handleSubmit(handleFormSubmit)}
       >
         <h2 className="text-heading text-xl font-bold">Login to continue</h2>
@@ -86,7 +86,7 @@ export default function LoginComponent() {
                   {...field}
                   type="email"
                   id="email"
-                  className="w-full outline-0 p-4 rounded-md border-2 border-black"
+                  className="w-full outline-0 p-2 md:p-4 rounded-md border-2 border-black"
                   placeholder="Enter email address"
                   autoComplete="on"
                 />
@@ -118,7 +118,7 @@ export default function LoginComponent() {
                   {...field}
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  className="w-full outline-0 p-4 rounded-md border-2 border-black"
+                  className="w-full outline-0 p-2 md:p-4 rounded-md border-2 border-black"
                   placeholder="Enter password"
                   minLength={8}
                 />
