@@ -13,6 +13,8 @@ export const useNotesStore = create((set) => ({
   noteViewKind: "",
   notesContainer: true,
   openTaskDialog: false,
+  openActionItemPopup: false,
+  actionItemHelperData: null,
 
   setNewNote: (val) => set({ newNote: val }),
   setPlaceholder: (val) => set({ placeholder: val }),
@@ -22,6 +24,8 @@ export const useNotesStore = create((set) => ({
   setOpenTaskDialog: (val) => set({ openTaskDialog: val }),
   setCurrentSelectedNoteID: (id) => set({ currentSelectedNoteID: id }),
   setCurrentSelectedNote: (val) => set({ currentSelectedNote: val }),
+  setOpenActionItemPopup: (val) => set({ openActionItemPopup: val }),
+  setActionItemHelperData: (val) => set({ actionItemHelperData: val }),
 
   // Call this on mount-when-logged-in, AND after any add/update/delete.
   fetchNotes: async () => {

@@ -11,6 +11,8 @@ import { CircleX, Copy, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
 import { useNotesStore } from "../store/notesStore";
+import { Divider } from "@mui/material";
+import ActionItemPopup from "./ActionItemPopup";
 
 const NoteView = () => {
   const setNoteView = useNotesStore((s) => s.setNoteView);
@@ -19,6 +21,10 @@ const NoteView = () => {
   const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
   const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
   const fetchNotes = useNotesStore((s) => s.fetchNotes);
+  const setOpenActionItemPopup = useNotesStore((s) => s.setOpenActionItemPopup);
+  const setActionItemHelperData = useNotesStore(
+    (s) => s.setActionItemHelperData,
+  );
 
   const isEdit = NOTE_VIEW_KINDS.EDIT === noteViewKind;
 
@@ -43,7 +49,7 @@ const NoteView = () => {
     setNoteViewKind(NOTE_VIEW_KINDS.VIEW);
   }
 
-  async function handleDeleteNote() {
+  async function deleteNote() {
     try {
       const result = await deleteMutation.mutate(
         `${apiEndPoints.DELETE_NOTE}/${currentSelectedNote.id}`,
@@ -58,6 +64,18 @@ const NoteView = () => {
       console.error("Error deleting the note: ", error.message);
       console.error("Cause of the error: ", error?.cause);
     }
+  }
+
+  function handleDeleteNote() {
+    setOpenActionItemPopup(true);
+
+    setActionItemHelperData({
+      title: "Are you sure, you want to delete this note?",
+      leftButtonName: "Delete Note",
+      fn: deleteNote,
+      isPending: deleteMutation.isLoading,
+    });
+    return;
   }
 
   async function handleEdit(formdata) {
@@ -109,7 +127,7 @@ const NoteView = () => {
           </p>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
             <section>
-              {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+              {isEdit ? (
                 <Controller
                   control={control}
                   name="title"
@@ -129,7 +147,7 @@ const NoteView = () => {
             </section>
 
             <section className="hidden md:flex md:items-center md:gap-2">
-              {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+              {isEdit ? (
                 <div className="flex items-center gap-2">
                   <Button
                     type={"submit"}
@@ -160,7 +178,7 @@ const NoteView = () => {
           </div>
         </div>
 
-        <div className="w-full h-0.5 bg-white" />
+        <Divider color="white" variant="fullWidth" className="h-0.5" />
 
         {/* CONTENT DIV */}
         <div
@@ -181,7 +199,7 @@ const NoteView = () => {
             </div>
           </div>
 
-          {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+          {isEdit ? (
             <Controller
               control={control}
               name="content"
@@ -199,14 +217,14 @@ const NoteView = () => {
             />
           ) : (
             <div
-              className="py-4 whitespace-pre-wrap text-white max-h-60 overflow-auto"
+              className="py-4 px-1 whitespace-pre-wrap text-white max-h-60 overflow-auto"
               data-component="note-content"
             >
               {currentSelectedNote.content}
             </div>
           )}
 
-          <div className="w-full h-0.5 bg-white" />
+          <Divider color="white" variant="fullWidth" className="h-0.5" />
 
           {currentSelectedNote?.tasks?.length > 0 && (
             <TaskManager tasks={currentSelectedNote.tasks} />
@@ -214,7 +232,6 @@ const NoteView = () => {
 
           {isMobile && (
             <div className="flex flex-col gap-0.5">
-              {/* <div className="separator"></div>*/}
               <NoteViewButtons
                 handleDeleteNote={handleDeleteNote}
                 isDeleting={deleteMutation.isLoading}
@@ -225,6 +242,7 @@ const NoteView = () => {
       </form>
 
       <TaskCreator />
+      <ActionItemPopup />
     </div>
   );
 };
