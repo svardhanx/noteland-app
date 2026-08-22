@@ -136,7 +136,7 @@ const NoteView = () => {
                       <input
                         {...field}
                         placeholder="Add a heading"
-                        className="text-white border-2 border-blue-500 px-1 py-2 rounded-md w-full outline-0"
+                        className="text-black bg-white border-2 border-blue-500 px-1 py-2 rounded-md w-full outline-0"
                       />
                     );
                   }}
@@ -190,13 +190,15 @@ const NoteView = () => {
               NOTE CONTENT:
             </p>
 
-            <div
-              className="flex items-center gap-1 hover:cursor-pointer hover:underline text-white"
-              onClick={() => copyContent(currentSelectedNote.content)}
-            >
-              <span>Copy content</span>
-              <Copy color="white" size={18} />
-            </div>
+            {!isEdit && (
+              <div
+                className="flex items-center gap-1 hover:cursor-pointer hover:underline text-white"
+                onClick={() => copyContent(currentSelectedNote.content)}
+              >
+                <span>Copy content</span>
+                <Copy color="white" size={18} />
+              </div>
+            )}
           </div>
 
           {isEdit ? (
@@ -209,7 +211,7 @@ const NoteView = () => {
                     {...field}
                     id="description"
                     placeholder="Your description goes here"
-                    className="border-2 border-blue-500 text-white px-2 py-3 rounded-md w-full outline-0"
+                    className="border-2 border-blue-500 text-black bg-white px-2 py-3 rounded-md w-full outline-0"
                     rows={10}
                   ></textarea>
                 );
