@@ -1,12 +1,11 @@
 import PropTypes from "prop-types";
-import { useContext } from "react";
 import { toast } from "react-toastify";
-import { NotesContext } from "../context/NotesContext";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { useNotesStore } from "../store/notesStore";
 
 const CurrentTasks = ({ task }) => {
-  const { refreshNotes, setRefreshNotes } = useContext(NotesContext);
+  const { fetchNotes } = useNotesStore();
 
   const updateTaskMutation = useMutation();
 
@@ -25,7 +24,7 @@ const CurrentTasks = ({ task }) => {
 
       toast.success(result?.message);
 
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error while updating the task: ", error.message);
     }

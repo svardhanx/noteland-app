@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
 import { Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
@@ -7,16 +5,13 @@ import FieldError from "./Common/FieldError.jsx";
 import { useMutation } from "../hooks/use-mutation.jsx";
 import { apiEndPoints } from "../utils/apiEndpoints.js";
 import Button from "../ui/button.jsx";
+import { useNotesStore } from "../store/notesStore.js";
 
 const TaskCreator = () => {
-  // CONTEXT
-  const {
-    refreshNotes,
-    setRefreshNotes,
-    currentSelectedNote,
-    openTaskDialog,
-    setOpenTaskDialog,
-  } = useContext(NotesContext);
+  const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
+  const openTaskDialog = useNotesStore((s) => s.openTaskDialog);
+  const setOpenTaskDialog = useNotesStore((s) => s.setOpenTaskDialog);
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
   const {
     control,
@@ -37,7 +32,7 @@ const TaskCreator = () => {
       toast.success(result?.message);
 
       handleClose();
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error while creating task: ", error.message);
       toast.error("Error while creating task");

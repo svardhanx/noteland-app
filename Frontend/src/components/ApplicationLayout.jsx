@@ -1,164 +1,48 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "./Header";
 import LoginComponent from "./Auth/LoginComponent";
 import SignUpComponent from "./Auth/SignUpComponent";
 import NewNoteIcon from "./NewNoteIcon";
-// import "./styles/mobile.css";
-// import "./styles/tab.css";
-// import "./styles/desktop.css";
 import WarningToastComponent from "../toasts/WarningToastComponent";
-import { NotesContext } from "../context/NotesContext";
 import MainSection from "./MainSection";
-import { apiEndPoints } from "../utils/apiEndpoints";
+import { useAuthStore } from "../store/authStore";
+import { useNotesStore } from "../store/notesStore";
 
 export default function ApplicationLayout() {
-  const [user, setUser] = useState(null);
-  const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const userLoggedIn = useAuthStore((s) => s.userLoggedIn);
+  const authChecked = useAuthStore((s) => s.authChecked);
+  const checkAuth = useAuthStore((s) => s.checkAuth);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+  const user = useAuthStore((s) => s.user);
 
-  const [notesLoading, setIsNotesLoading] = useState(false);
+  const newNote = useNotesStore((s) => s.newNote);
+  const placeholder = useNotesStore((s) => s.placeholder);
+  const noteView = useNotesStore((s) => s.noteView);
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
-  const [allNotes, setAllNotes] = useState([]);
-  const [refreshNotes, setRefreshNotes] = useState(false);
-
-  const [placeholder, setPlaceholder] = useState(true);
-  const [newNote, setNewNote] = useState(false);
-  const [currentSelectedNote, setCurrentSelectedNote] = useState({});
-  const [currentSelectedNoteID, setCurrentSelectedNoteID] = useState(0);
-  const [noteView, setNoteView] = useState(false);
-  const [noteViewKind, setNoteViewKind] = useState("");
-  const [notesContainer, setNotesContainer] = useState(true);
-
-  const [openTaskDialog, setOpenTaskDialog] = useState(false);
-  const [openLoginComponent, setOpenLoginComponent] = useState(false);
-  const [openSignUpComponent, setOpenSignUpComponent] = useState(false);
-
-  const [authenticating, setAuthenticating] = useState(false);
-
-  function resetAfterLogout() {
-    setUser(null);
-    setUserLoggedIn(false);
-    setAllNotes([]);
-    setNoteView(false);
-    setPlaceholder(true);
-  }
-
+  // Once on mount: resolve "logged in?" so a hard refresh doesn't flash logged-out.
   useEffect(() => {
-    async function initMe() {
-      try {
-        const response = await fetch(apiEndPoints.ME, {
-          credentials: "include",
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUserLoggedIn(data.isLoggedIn);
-        }
-      } catch (error) {
-        console.error("Error in initMe function", error);
-      }
-    }
+    checkAuth();
+  }, [checkAuth]);
 
-    initMe();
-  }, []);
-
-  async function safeFetch(url, signal) {
-    const res = await fetch(url, { credentials: "include", signal });
-    if (!res.ok) {
-      throw new Error(`Failed request: ${res.status} ${res.statusText}`);
-    }
-    return res.json();
-  }
-
+  // Once, the moment auth resolves true: load user + notes. Never re-runs on note CRUD.
   useEffect(() => {
     if (!userLoggedIn) return;
+    fetchUser();
+    fetchNotes();
+  }, [fetchNotes, fetchUser, userLoggedIn]);
 
-    const controller = new AbortController();
-
-    (async function () {
-      try {
-        setIsNotesLoading(true);
-
-        const [userResponse, userNotesResponse] = await Promise.all([
-          safeFetch(apiEndPoints.GET_USER, controller.signal),
-          safeFetch(apiEndPoints.GET_USER_NOTES, controller.signal),
-        ]);
-
-        if (userResponse.success) {
-          setUser(userResponse.user);
-          setUserLoggedIn(true);
-        }
-
-        if (userNotesResponse.success) {
-          setAllNotes(userNotesResponse.notes);
-        }
-      } catch (error) {
-        console.error("Error fetching data for the user", error);
-        setUser(null);
-        setUserLoggedIn(false);
-        setAllNotes([]);
-      } finally {
-        setIsNotesLoading(false);
-      }
-    })();
-
-    () => {
-      controller.abort();
-    };
-  }, [refreshNotes, userLoggedIn]);
-
-  useEffect(() => {
-    if (currentSelectedNoteID) {
-      setCurrentSelectedNote(() =>
-        allNotes?.find((note) => note.id === currentSelectedNoteID),
-      );
-    }
-  }, [allNotes, currentSelectedNoteID]);
+  if (!authChecked) return null; // or a small skeleton, your call
 
   return (
     <>
-      <NotesContext.Provider
-        value={{
-          user,
-          setUser,
-          userLoggedIn,
-          setUserLoggedIn,
-          openLoginComponent,
-          setOpenLoginComponent,
-          openSignUpComponent,
-          setOpenSignUpComponent,
-          allNotes,
-          setAllNotes,
-          placeholder,
-          setPlaceholder,
-          newNote,
-          setNewNote,
-          currentSelectedNote,
-          setCurrentSelectedNote,
-          noteView,
-          setNoteView,
-          refreshNotes,
-          setRefreshNotes,
-          currentSelectedNoteID,
-          setCurrentSelectedNoteID,
-          authenticating,
-          setAuthenticating,
-          notesContainer,
-          setNotesContainer,
-          noteViewKind,
-          setNoteViewKind,
-          resetAfterLogout,
-          openTaskDialog,
-          setOpenTaskDialog,
-          notesLoading,
-        }}
-      >
-        <div className="flex flex-col min-h-dvh relative overflow-hidden">
-          <Header />
-          <MainSection newNote={newNote} placeholder={placeholder} />
-          <LoginComponent />
-          <SignUpComponent />
-          {user && !noteView && !newNote && <NewNoteIcon />}
-        </div>
-      </NotesContext.Provider>
+      <div className="flex flex-col min-h-dvh relative overflow-hidden">
+        <Header />
+        <MainSection newNote={newNote} placeholder={placeholder} />
+        <LoginComponent />
+        <SignUpComponent />
+        {user && !noteView && !newNote && <NewNoteIcon />}
+      </div>
       <WarningToastComponent />
     </>
   );

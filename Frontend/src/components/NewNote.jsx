@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext.js";
 import { toast } from "react-toastify";
 import Button from "../ui/button.jsx";
 import { Ban, Pen } from "lucide-react";
@@ -7,6 +5,7 @@ import { Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { apiEndPoints } from "../utils/apiEndpoints.js";
 import { useMutation } from "../hooks/use-mutation.jsx";
+import { useNotesStore } from "../store/notesStore.js";
 
 const defaultValues = {
   title: "",
@@ -14,8 +13,7 @@ const defaultValues = {
 };
 
 const NewNote = () => {
-  const { setRefreshNotes, newNote, setNewNote, setPlaceholder } =
-    useContext(NotesContext);
+  const { fetchNotes, newNote, setNewNote, setPlaceholder } = useNotesStore();
 
   const {
     control,
@@ -32,7 +30,7 @@ const NewNote = () => {
 
       toast.success(result?.message);
 
-      setRefreshNotes((prev) => !prev);
+      await fetchNotes();
 
       handleClose();
     } catch (error) {

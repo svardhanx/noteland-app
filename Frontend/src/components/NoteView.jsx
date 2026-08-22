@@ -1,11 +1,8 @@
-import { useContext, useEffect } from "react";
-import { NotesContext } from "../context/NotesContext";
+import { useEffect, useMemo } from "react";
 import TaskCreator from "./TaskCreator";
 import TaskManager from "./TaskManager";
 import { toast } from "react-toastify";
 import { NOTE_VIEW_KINDS } from "../utils/constants";
-// import EditNoteModal from "./EditNoteModal";
-// import { Delete, Edit } from "lucide-react";
 import NoteViewButtons from "./NoteViewButtons";
 import { useIsMobile } from "../hooks/use-mobile";
 import { Controller, useForm } from "react-hook-form";
@@ -13,28 +10,27 @@ import Button from "../ui/button";
 import { CircleX, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { useNotesStore } from "../store/notesStore";
 
 const NoteView = () => {
-  const {
-    currentSelectedNote,
-    setNoteView,
-    refreshNotes,
-    setRefreshNotes,
-    noteViewKind,
-    setNoteViewKind,
-    setCurrentSelectedNote,
-  } = useContext(NotesContext);
+  const setNoteView = useNotesStore((s) => s.setNoteView);
+  const noteViewKind = useNotesStore((s) => s.noteViewKind);
+  const setNoteViewKind = useNotesStore((s) => s.setNoteViewKind);
+  const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
+  const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
   const isEdit = NOTE_VIEW_KINDS.EDIT === noteViewKind;
 
-  const defaultValues = {
-    title: currentSelectedNote.title,
-    content: currentSelectedNote.content,
-  };
+  const defaultValues = useMemo(
+    () => ({
+      title: currentSelectedNote.title,
+      content: currentSelectedNote.content,
+    }),
+    [currentSelectedNote.title, currentSelectedNote.content],
+  );
 
   const { control, reset, handleSubmit } = useForm({ defaultValues });
-
-  // const [openEditModal, setOpenEditModal] = useState(false);
 
   const isMobile = useIsMobile();
 
@@ -57,7 +53,7 @@ const NoteView = () => {
 
       toast.success(result?.message);
       setNoteView(false);
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error deleting the note: ", error.message);
       console.error("Cause of the error: ", error?.cause);
@@ -79,7 +75,7 @@ const NoteView = () => {
       );
 
       toast.success(result?.message);
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
       setCurrentSelectedNote(result?.data);
       handleClose();
       editMutation.reset();
@@ -91,8 +87,7 @@ const NoteView = () => {
   useEffect(() => {
     if (!isEdit) return;
     reset(defaultValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit]);
+  }, [defaultValues, isEdit, reset]);
 
   return (
     <div className="flex flex-col w-full h-full" data-component="note-view">

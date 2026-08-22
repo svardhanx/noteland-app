@@ -1,5 +1,4 @@
-import { useState, useContext } from "react";
-import { NotesContext } from "../../context/NotesContext";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import Button from "../../ui/button";
 import { apiEndPoints } from "../../utils/apiEndpoints";
@@ -7,6 +6,8 @@ import { Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import FieldError from "../Common/FieldError";
 import { useMutation } from "../../hooks/use-mutation";
+import { useAuthStore } from "../../store/authStore";
+import { useNotesStore } from "../../store/notesStore";
 
 const defaultValues = {
   email: "",
@@ -14,14 +15,12 @@ const defaultValues = {
 };
 
 export default function LoginComponent() {
-  const {
-    openLoginComponent,
-    setOpenLoginComponent,
-    setUser,
-    setUserLoggedIn,
-    setRefreshNotes,
-    setOpenSignUpComponent,
-  } = useContext(NotesContext);
+  const openLoginComponent = useAuthStore((s) => s.openLoginComponent);
+  const setOpenLoginComponent = useAuthStore((s) => s.setOpenLoginComponent);
+  const setOpenSignUpComponent = useAuthStore((s) => s.setOpenSignUpComponent);
+  const setUser = useAuthStore((s) => s.setUser);
+  const setUserLoggedIn = useAuthStore((s) => s.setUserLoggedIn);
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
   const {
     control,
@@ -41,7 +40,7 @@ export default function LoginComponent() {
       const result = await mutate(url, payload, "POST");
 
       toast.success(result?.message);
-      setRefreshNotes((prev) => !prev);
+      fetchNotes();
       setUser(result?.user);
       setUserLoggedIn(true);
       setOpenLoginComponent(false);

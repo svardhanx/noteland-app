@@ -1,11 +1,10 @@
-import { useContext } from "react";
 import NewNote from "./NewNote";
-import { NotesContext } from "../context/NotesContext";
 import NoteView from "./NoteView";
 import AllNotes from "./AllNotes";
+import { useNotesStore } from "../store/notesStore";
 
 const MainSection = () => {
-  const { noteView } = useContext(NotesContext);
+  const noteView = useNotesStore((s) => s.noteView);
 
   return (
     <main

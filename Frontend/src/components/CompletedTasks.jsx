@@ -1,13 +1,12 @@
 import { CircleCheck } from "lucide-react";
 import PropTypes from "prop-types";
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { useNotesStore } from "../store/notesStore";
 
 const CompletedTasks = ({ task }) => {
-  const { refreshNotes, setRefreshNotes } = useContext(NotesContext);
+  const { fetchNotes } = useNotesStore();
 
   const updateTaskMutation = useMutation();
 
@@ -26,7 +25,7 @@ const CompletedTasks = ({ task }) => {
 
       toast.success(result?.message);
 
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error while updating the task: ", error.message);
     }

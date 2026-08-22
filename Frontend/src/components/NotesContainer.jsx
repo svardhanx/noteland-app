@@ -1,18 +1,20 @@
-import { useContext, useRef } from "react";
-import { NotesContext } from "../context/NotesContext";
+import { useRef } from "react";
 import { useIsMobile } from "../hooks/use-mobile";
+import { useAuthStore } from "../store/authStore";
+import { useNotesStore } from "../store/notesStore";
 
 export default function NotesContainer() {
-  const {
-    user,
-    allNotes,
-    setCurrentSelectedNote,
-    setCurrentSelectedNoteID,
-    setNewNote,
-    setPlaceholder,
-    setNoteView,
-    setNotesContainer,
-  } = useContext(NotesContext);
+  const user = useAuthStore((s) => s.user);
+
+  const allNotes = useNotesStore((s) => s.allNotes);
+  const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
+  const setCurrentSelectedNoteID = useNotesStore(
+    (s) => s.setCurrentSelectedNoteID,
+  );
+  const setNewNote = useNotesStore((s) => s.setNewNote);
+  const setPlaceholder = useNotesStore((s) => s.setPlaceholder);
+  const setNoteView = useNotesStore((s) => s.setNoteView);
+  const setNotesContainer = useNotesStore((s) => s.setNotesContainer);
 
   const notesContainerRef = useRef();
 
@@ -25,7 +27,6 @@ export default function NotesContainer() {
     setPlaceholder(false);
     setNoteView(true);
     isMobile && setNotesContainer(false);
-    // handleNotesContainer();
   };
 
   return (

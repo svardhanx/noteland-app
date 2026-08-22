@@ -6,6 +6,7 @@ const TaskManager = ({ tasks }) => {
   const hasTasks = tasks?.length > 0;
 
   const pendingTasks = hasTasks ? tasks?.filter((task) => !task.completed) : [];
+
   const completedTasks = hasTasks
     ? tasks?.filter((task) => task.completed)
     : [];
