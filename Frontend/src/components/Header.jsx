@@ -48,7 +48,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-primary flex items-center justify-between w-full py-2 px-3">
+    <header className="bg-primary flex items-center justify-between w-full py-2 px-3 fixed top-0">
       <div className="flex items-center gap-2">
         <img src="./logo-main.png" alt="Logo" className="w-10 h-10" />
         <h1

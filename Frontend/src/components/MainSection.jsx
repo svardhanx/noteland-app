@@ -8,7 +8,7 @@ const MainSection = () => {
 
   return (
     <main
-      className="flex bg-secondary flex-auto min-h-0"
+      className="flex bg-secondary flex-auto min-h-0 mt-14"
       data-component="main-section"
     >
       <NewNote />
