@@ -7,7 +7,7 @@ import NoteViewButtons from "./NoteViewButtons";
 import { useIsMobile } from "../hooks/use-mobile";
 import { Controller, useForm } from "react-hook-form";
 import Button from "../ui/button";
-import { CircleX, Edit } from "lucide-react";
+import { CircleX, Copy, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
 import { useNotesStore } from "../store/notesStore";
@@ -84,6 +84,11 @@ const NoteView = () => {
     }
   }
 
+  async function copyContent(data) {
+    await navigator.clipboard.writeText(data);
+    toast.success("Content copied");
+  }
+
   useEffect(() => {
     if (!isEdit) return;
     reset(defaultValues);
@@ -158,14 +163,23 @@ const NoteView = () => {
         <div className="w-full h-0.5 bg-white" />
 
         {/* CONTENT DIV */}
-
         <div
           className="flex flex-col rounded-lg p-4 gap-4 overflow-y-auto flex-1 min-h-0"
           data-element="note-view-content"
         >
-          <p className="text-white underline underline-offset-6 uppercase font-bold">
-            NOTE CONTENT:
-          </p>
+          <div className="p-1 flex items-center justify-between">
+            <p className="text-white underline underline-offset-6 uppercase font-bold">
+              NOTE CONTENT:
+            </p>
+
+            <div
+              className="flex items-center gap-1 hover:cursor-pointer hover:underline text-white"
+              onClick={() => copyContent(currentSelectedNote.content)}
+            >
+              <span>Copy content</span>
+              <Copy color="white" size={18} />
+            </div>
+          </div>
 
           {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
             <Controller
@@ -184,10 +198,15 @@ const NoteView = () => {
               }}
             />
           ) : (
-            <div className="py-4 whitespace-pre-wrap text-white">
+            <div
+              className="py-4 whitespace-pre-wrap text-white max-h-60 overflow-auto"
+              data-component="note-content"
+            >
               {currentSelectedNote.content}
             </div>
           )}
+
+          <div className="w-full h-0.5 bg-white" />
 
           {currentSelectedNote?.tasks?.length > 0 && (
             <TaskManager tasks={currentSelectedNote.tasks} />

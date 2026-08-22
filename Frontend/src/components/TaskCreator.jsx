@@ -31,8 +31,8 @@ const TaskCreator = () => {
 
       toast.success(result?.message);
 
-      handleClose();
       await fetchNotes();
+      handleClose();
     } catch (error) {
       console.error("Error while creating task: ", error.message);
       toast.error("Error while creating task");
