@@ -32,7 +32,7 @@ export default function ApplicationLayout() {
     fetchNotes();
   }, [fetchNotes, fetchUser, userLoggedIn]);
 
-  if (!authChecked) return null; // or a small skeleton, your call
+  if (!authChecked) return null;
 
   return (
     <>
@@ -41,9 +41,9 @@ export default function ApplicationLayout() {
         <MainSection newNote={newNote} placeholder={placeholder} />
         <LoginComponent />
         <SignUpComponent />
-        {user && !noteView && !newNote && <NewNoteIcon />}
       </div>
       <WarningToastComponent />
+      {user && !noteView && !newNote && <NewNoteIcon />}
     </>
   );
 }

@@ -14,7 +14,7 @@ const NewNoteIcon = () => {
 
   return (
     <div
-      className="absolute right-4 bottom-[clamp(2rem,5vh,5rem)]"
+      className="fixed right-4 bottom-[clamp(2rem,5vh,5rem)]"
       onClick={handleNewNoteButton}
     >
       <Fab color="primary" aria-label="add" size="medium" title="Add a note">

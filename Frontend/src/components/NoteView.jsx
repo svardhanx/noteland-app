@@ -110,7 +110,11 @@ const NoteView = () => {
   useEffect(() => {
     if (!isEdit) return;
     reset(defaultValues);
-  }, [defaultValues, isEdit, reset]);
+
+    return () => {
+      setNoteViewKind(NOTE_VIEW_KINDS.VIEW);
+    };
+  }, [defaultValues, isEdit, reset, setNoteViewKind]);
 
   return (
     <div className="flex flex-col w-full h-full" data-component="note-view">
@@ -136,7 +140,7 @@ const NoteView = () => {
                       <input
                         {...field}
                         placeholder="Add a heading"
-                        className="text-black bg-white border-2 border-blue-500 px-1 py-2 rounded-md w-full outline-0"
+                        className="text-black bg-white border-2 border-blue-500 px-1 py-2 rounded-md outline-0"
                       />
                     );
                   }}
@@ -212,7 +216,7 @@ const NoteView = () => {
                     id="description"
                     placeholder="Your description goes here"
                     className="border-2 border-blue-500 text-black bg-white px-2 py-3 rounded-md w-full outline-0"
-                    rows={10}
+                    rows={12}
                   ></textarea>
                 );
               }}
@@ -228,7 +232,7 @@ const NoteView = () => {
 
           <Divider color="white" variant="fullWidth" className="h-0.5" />
 
-          {currentSelectedNote?.tasks?.length > 0 && (
+          {currentSelectedNote?.tasks?.length > 0 && !isEdit && (
             <TaskManager tasks={currentSelectedNote.tasks} />
           )}
 
