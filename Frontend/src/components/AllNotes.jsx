@@ -1,10 +1,14 @@
-import { useContext } from "react";
 import NoteCard from "./NoteCard";
-import { NotesContext } from "../context/NotesContext";
 import { Skeleton } from "@mui/material";
+import { useNotesStore } from "../store/notesStore";
+import { useAuthStore } from "../store/authStore";
 
 const AllNotes = () => {
-  const { allNotes, notesLoading, userLoggedIn } = useContext(NotesContext);
+  const allNotes = useNotesStore((s) => s.allNotes);
+
+  const notesLoading = useNotesStore((s) => s.notesLoading);
+
+  const userLoggedIn = useAuthStore((s) => s.userLoggedIn);
 
   if (!userLoggedIn) {
     return (

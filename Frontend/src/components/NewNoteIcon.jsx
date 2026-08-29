@@ -1,39 +1,20 @@
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import { Fab } from "@mui/material";
 import { Plus } from "lucide-react";
-// import { NOTE_VIEW_KINDS } from "../utils/constants";
+import { useNotesStore } from "../store/notesStore";
 
 const NewNoteIcon = () => {
-  const {
-    setNewNote,
-    // setPlaceholder,
-    setNoteView,
-    // setNoteViewKind
-  } = useContext(NotesContext);
+  const setNewNote = useNotesStore((s) => s.setNewNote);
+
+  const setNoteView = useNotesStore((s) => s.setNoteView);
 
   const handleNewNoteButton = () => {
     setNewNote(true);
-    // setPlaceholder(false);
     setNoteView(false);
-    // setNoteViewKind(NOTE_VIEW_KINDS.ADD);
   };
 
   return (
-    // <div className="new-note-icon">
-    //   <img
-    //     src="/plus.png"
-    //     alt="Plus icon"
-    //     loading="lazy"
-    //     className="plus-icon"
-    //     title="New Note"
-    //     onClick={handleNewNoteButton}
-    //   />
-    // </div>
-
-    // <div className="absolute right-5 bottom-10" onClick={handleNewNoteButton}>
     <div
-      className="absolute right-4 bottom-[clamp(2rem,5vh,5rem)]"
+      className="fixed right-4 bottom-[clamp(2rem,5vh,5rem)]"
       onClick={handleNewNoteButton}
     >
       <Fab color="primary" aria-label="add" size="medium" title="Add a note">

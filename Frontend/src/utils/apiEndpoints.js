@@ -2,14 +2,14 @@ import { VITE_BACKEND_URL } from "./constants";
 
 export const apiEndPoints = Object.freeze({
   ME: `${VITE_BACKEND_URL}/auth/me`,
-  GET_USER: `${VITE_BACKEND_URL}/auth/get-user`,
-  GET_USER_NOTES: `${VITE_BACKEND_URL}/notes/get-user-notes`,
+  GET_USER: `${VITE_BACKEND_URL}/auth/user`,
   LOGIN: `${VITE_BACKEND_URL}/auth/login`,
   LOGOUT: `${VITE_BACKEND_URL}/auth/logout`,
   REGISTER: `${VITE_BACKEND_URL}/auth/register`,
-  CREATE_NOTE: `${VITE_BACKEND_URL}/notes/create-note`,
-  UPDATE_NOTE: `${VITE_BACKEND_URL}/notes/update-note`,
-  DELETE_NOTE: `${VITE_BACKEND_URL}/notes/delete-note`,
-  CREATE_TASK: `${VITE_BACKEND_URL}/notes/create-task`,
-  UPDATE_TASK: `${VITE_BACKEND_URL}/notes/update-task`,
+  GET_USER_NOTES: `${VITE_BACKEND_URL}/notes/`,
+  CREATE_NOTE: `${VITE_BACKEND_URL}/notes/`,
+  UPDATE_NOTE: `${VITE_BACKEND_URL}/notes/`,
+  DELETE_NOTE: `${VITE_BACKEND_URL}/notes/`,
+  CREATE_TASK: `${VITE_BACKEND_URL}/notes/`,
+  UPDATE_TASK: `${VITE_BACKEND_URL}/notes/`,
 });

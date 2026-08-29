@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
 import { Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
@@ -7,37 +5,33 @@ import FieldError from "./Common/FieldError.jsx";
 import { useMutation } from "../hooks/use-mutation.jsx";
 import { apiEndPoints } from "../utils/apiEndpoints.js";
 import Button from "../ui/button.jsx";
+import { useNotesStore } from "../store/notesStore.js";
 
 const TaskCreator = () => {
-  // CONTEXT
-  const {
-    refreshNotes,
-    setRefreshNotes,
-    currentSelectedNote,
-    openTaskDialog,
-    setOpenTaskDialog,
-  } = useContext(NotesContext);
+  const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
+  const openTaskDialog = useNotesStore((s) => s.openTaskDialog);
+  const setOpenTaskDialog = useNotesStore((s) => s.setOpenTaskDialog);
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ defaultValues: { task_name: "" } });
+  } = useForm({ defaultValues: { taskName: "" } });
 
   const taskMutation = useMutation();
 
-  // FUNCTION HANDLE TASK SUBMISSION
   async function handleCreateTaskSubmission(formdata) {
-    const url = `${apiEndPoints.CREATE_TASK}/${currentSelectedNote.id}`;
+    const url = `${apiEndPoints.CREATE_TASK}${currentSelectedNote.id}/tasks`;
 
     try {
       const result = await taskMutation.mutate(url, formdata, "POST");
 
       toast.success(result?.message);
 
+      await fetchNotes();
       handleClose();
-      setRefreshNotes(!refreshNotes);
     } catch (error) {
       console.error("Error while creating task: ", error.message);
       toast.error("Error while creating task");
@@ -63,7 +57,7 @@ const TaskCreator = () => {
         <h3 className="font-semibold text-xl">Enter New Task:</h3>
         <Controller
           control={control}
-          name="task_name"
+          name="taskName"
           rules={{
             required: "task name is required",
           }}
@@ -76,8 +70,8 @@ const TaskCreator = () => {
                   placeholder="Task Name"
                   className="outline-0 p-2 rounded-md text-lg border-2 border-black w-full"
                 />
-                {errors?.task_name?.message && (
-                  <FieldError message={errors?.task_name?.message} />
+                {errors?.taskName?.message && (
+                  <FieldError message={errors?.taskName?.message} />
                 )}
               </div>
             );

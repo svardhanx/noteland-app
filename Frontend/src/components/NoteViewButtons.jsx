@@ -1,12 +1,13 @@
-import { useContext } from "react";
 import { Delete, Edit } from "lucide-react";
 import PropTypes from "prop-types";
 import Button from "../ui/button";
 import { NOTE_VIEW_KINDS } from "../utils/constants";
-import { NotesContext } from "../context/NotesContext";
+import { useNotesStore } from "../store/notesStore";
 
 export default function NoteViewButtons({ handleDeleteNote, isDeleting }) {
-  const { setOpenTaskDialog, setNoteViewKind } = useContext(NotesContext);
+  const setOpenTaskDialog = useNotesStore((s) => s.setOpenTaskDialog);
+
+  const setNoteViewKind = useNotesStore((s) => s.setNoteViewKind);
 
   return (
     <div className="flex items-center gap-2 flex-wrap">

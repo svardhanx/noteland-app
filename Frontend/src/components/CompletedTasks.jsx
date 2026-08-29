@@ -1,13 +1,12 @@
 import { CircleCheck } from "lucide-react";
 import PropTypes from "prop-types";
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
 import { toast } from "react-toastify";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { useNotesStore } from "../store/notesStore";
 
 const CompletedTasks = ({ task }) => {
-  const { refreshNotes, setRefreshNotes } = useContext(NotesContext);
+  const { fetchNotes, currentSelectedNoteID } = useNotesStore();
 
   const updateTaskMutation = useMutation();
 
@@ -18,15 +17,15 @@ const CompletedTasks = ({ task }) => {
     }
 
     try {
-      const url = apiEndPoints.UPDATE_TASK;
+      const url = `${apiEndPoints.UPDATE_TASK}${currentSelectedNoteID}/tasks/${id}`;
 
-      const payload = { id, status: false };
+      const payload = { id, completed: false };
 
       const result = await updateTaskMutation.mutate(url, payload, "PATCH");
 
       toast.success(result?.message);
 
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error while updating the task: ", error.message);
     }
@@ -39,7 +38,7 @@ const CompletedTasks = ({ task }) => {
         size={20}
         onClick={() => handleTaskCompletion(task.id)}
       />
-      <span className="text-white line-through">{task?.task_name}</span>
+      <span className="text-white line-through">{task?.taskName}</span>
     </div>
   );
 };

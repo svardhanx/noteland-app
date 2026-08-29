@@ -1,11 +1,15 @@
 import { Divider } from "@mui/material";
-import { useContext } from "react";
-import { NotesContext } from "../context/NotesContext";
+import { useNotesStore } from "../store/notesStore";
 
 /* eslint-disable react/prop-types */
 export default function NoteCard({ note }) {
-  const { setCurrentSelectedNote, setCurrentSelectedNoteID, setNoteView } =
-    useContext(NotesContext);
+  const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
+
+  const setCurrentSelectedNoteID = useNotesStore(
+    (s) => s.setCurrentSelectedNoteID,
+  );
+
+  const setNoteView = useNotesStore((s) => s.setNoteView);
 
   function renderNoteView() {
     setCurrentSelectedNote(note);

@@ -1,40 +1,42 @@
-import { useContext, useEffect } from "react";
-import { NotesContext } from "../context/NotesContext";
+import { useEffect, useMemo } from "react";
 import TaskCreator from "./TaskCreator";
 import TaskManager from "./TaskManager";
 import { toast } from "react-toastify";
 import { NOTE_VIEW_KINDS } from "../utils/constants";
-// import EditNoteModal from "./EditNoteModal";
-// import { Delete, Edit } from "lucide-react";
 import NoteViewButtons from "./NoteViewButtons";
 import { useIsMobile } from "../hooks/use-mobile";
 import { Controller, useForm } from "react-hook-form";
 import Button from "../ui/button";
-import { CircleX, Edit } from "lucide-react";
+import { CircleX, Copy, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
+import { useCurrentSelectedNote, useNotesStore } from "../store/notesStore";
+import { Divider } from "@mui/material";
+import ActionItemPopup from "./ActionItemPopup";
 
 const NoteView = () => {
-  const {
-    currentSelectedNote,
-    setNoteView,
-    refreshNotes,
-    setRefreshNotes,
-    noteViewKind,
-    setNoteViewKind,
-    setCurrentSelectedNote,
-  } = useContext(NotesContext);
+  const setNoteView = useNotesStore((s) => s.setNoteView);
+  const noteViewKind = useNotesStore((s) => s.noteViewKind);
+  const setNoteViewKind = useNotesStore((s) => s.setNoteViewKind);
+  const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
+  const currentSelectedNote = useCurrentSelectedNote();
+  const fetchNotes = useNotesStore((s) => s.fetchNotes);
+  const setOpenActionItemPopup = useNotesStore((s) => s.setOpenActionItemPopup);
+  const setActionItemHelperData = useNotesStore(
+    (s) => s.setActionItemHelperData,
+  );
 
   const isEdit = NOTE_VIEW_KINDS.EDIT === noteViewKind;
 
-  const defaultValues = {
-    title: currentSelectedNote.title,
-    content: currentSelectedNote.content,
-  };
+  const defaultValues = useMemo(
+    () => ({
+      title: currentSelectedNote.title,
+      content: currentSelectedNote.content,
+    }),
+    [currentSelectedNote.title, currentSelectedNote.content],
+  );
 
   const { control, reset, handleSubmit } = useForm({ defaultValues });
-
-  // const [openEditModal, setOpenEditModal] = useState(false);
 
   const isMobile = useIsMobile();
 
@@ -47,21 +49,33 @@ const NoteView = () => {
     setNoteViewKind(NOTE_VIEW_KINDS.VIEW);
   }
 
-  async function handleDeleteNote() {
+  async function deleteNote() {
     try {
       const result = await deleteMutation.mutate(
-        `${apiEndPoints.DELETE_NOTE}/${currentSelectedNote.id}`,
+        `${apiEndPoints.DELETE_NOTE}${currentSelectedNote.id}`,
         null,
         "DELETE",
       );
 
       toast.success(result?.message);
       setNoteView(false);
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
     } catch (error) {
       console.error("Error deleting the note: ", error.message);
       console.error("Cause of the error: ", error?.cause);
     }
+  }
+
+  function handleDeleteNote() {
+    setOpenActionItemPopup(true);
+
+    setActionItemHelperData({
+      title: "Are you sure, you want to delete this note?",
+      leftButtonName: "Delete Note",
+      fn: deleteNote,
+      isPending: deleteMutation.isLoading,
+    });
+    return;
   }
 
   async function handleEdit(formdata) {
@@ -73,13 +87,13 @@ const NoteView = () => {
 
     try {
       const result = await editMutation.mutate(
-        apiEndPoints.UPDATE_NOTE,
+        `${apiEndPoints.UPDATE_NOTE}${currentSelectedNote.id}`,
         payload,
         "PUT",
       );
 
       toast.success(result?.message);
-      setRefreshNotes(!refreshNotes);
+      await fetchNotes();
       setCurrentSelectedNote(result?.data);
       handleClose();
       editMutation.reset();
@@ -88,11 +102,19 @@ const NoteView = () => {
     }
   }
 
+  async function copyContent(data) {
+    await navigator.clipboard.writeText(data);
+    toast.success("Content copied");
+  }
+
   useEffect(() => {
     if (!isEdit) return;
     reset(defaultValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit]);
+
+    return () => {
+      setNoteViewKind(NOTE_VIEW_KINDS.VIEW);
+    };
+  }, [defaultValues, isEdit, reset, setNoteViewKind]);
 
   return (
     <div className="flex flex-col w-full h-full" data-component="note-view">
@@ -109,7 +131,7 @@ const NoteView = () => {
           </p>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
             <section>
-              {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+              {isEdit ? (
                 <Controller
                   control={control}
                   name="title"
@@ -118,7 +140,7 @@ const NoteView = () => {
                       <input
                         {...field}
                         placeholder="Add a heading"
-                        className="text-white border-2 border-blue-500 px-1 py-2 rounded-md w-full outline-0"
+                        className="text-black bg-white border-2 border-blue-500 px-1 py-2 rounded-md outline-0"
                       />
                     );
                   }}
@@ -129,7 +151,7 @@ const NoteView = () => {
             </section>
 
             <section className="hidden md:flex md:items-center md:gap-2">
-              {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+              {isEdit ? (
                 <div className="flex items-center gap-2">
                   <Button
                     type={"submit"}
@@ -160,19 +182,30 @@ const NoteView = () => {
           </div>
         </div>
 
-        <div className="w-full h-0.5 bg-white" />
+        <Divider color="white" variant="fullWidth" className="h-0.5" />
 
         {/* CONTENT DIV */}
-
         <div
           className="flex flex-col rounded-lg p-4 gap-4 overflow-y-auto flex-1 min-h-0"
           data-element="note-view-content"
         >
-          <p className="text-white underline underline-offset-6 uppercase font-bold">
-            NOTE CONTENT:
-          </p>
+          <div className="p-1 flex items-center justify-between">
+            <p className="text-white underline underline-offset-6 uppercase font-bold">
+              NOTE CONTENT:
+            </p>
 
-          {noteViewKind === NOTE_VIEW_KINDS.EDIT ? (
+            {!isEdit && (
+              <div
+                className="flex items-center gap-1 hover:cursor-pointer hover:underline text-white"
+                onClick={() => copyContent(currentSelectedNote.content)}
+              >
+                <span>Copy content</span>
+                <Copy color="white" size={18} />
+              </div>
+            )}
+          </div>
+
+          {isEdit ? (
             <Controller
               control={control}
               name="content"
@@ -182,25 +215,29 @@ const NoteView = () => {
                     {...field}
                     id="description"
                     placeholder="Your description goes here"
-                    className="border-2 border-blue-500 text-white px-2 py-3 rounded-md w-full outline-0"
-                    rows={10}
+                    className="border-2 border-blue-500 text-black bg-white px-2 py-3 rounded-md w-full outline-0"
+                    rows={12}
                   ></textarea>
                 );
               }}
             />
           ) : (
-            <div className="py-4 whitespace-pre-wrap text-white">
+            <div
+              className="py-4 px-1 whitespace-pre-wrap text-white max-h-60 overflow-auto"
+              data-component="note-content"
+            >
               {currentSelectedNote.content}
             </div>
           )}
 
-          {currentSelectedNote?.tasks?.length > 0 && (
+          <Divider color="white" variant="fullWidth" className="h-0.5" />
+
+          {currentSelectedNote?.tasks?.length > 0 && !isEdit && (
             <TaskManager tasks={currentSelectedNote.tasks} />
           )}
 
           {isMobile && (
             <div className="flex flex-col gap-0.5">
-              {/* <div className="separator"></div>*/}
               <NoteViewButtons
                 handleDeleteNote={handleDeleteNote}
                 isDeleting={deleteMutation.isLoading}
@@ -211,6 +248,7 @@ const NoteView = () => {
       </form>
 
       <TaskCreator />
+      <ActionItemPopup />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { Divider } from "@mui/material";
 import CompletedTasks from "./CompletedTasks";
 import CurrentTasks from "./CurrentTasks";
 import PropTypes from "prop-types";
@@ -6,6 +7,7 @@ const TaskManager = ({ tasks }) => {
   const hasTasks = tasks?.length > 0;
 
   const pendingTasks = hasTasks ? tasks?.filter((task) => !task.completed) : [];
+
   const completedTasks = hasTasks
     ? tasks?.filter((task) => task.completed)
     : [];
@@ -28,7 +30,7 @@ const TaskManager = ({ tasks }) => {
         <p className="text-white opacity-75">No pending tasks. Create a task</p>
       )}
 
-      <hr />
+      <Divider color="white" variant="fullWidth" className="h-0.5" />
 
       {/* COMPLETED TASKS */}
       {completedTasks?.length > 0 && (
