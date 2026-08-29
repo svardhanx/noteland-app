@@ -65,7 +65,6 @@ export const updateTask = async ({ noteId, taskId, userId, completed }) => {
     throw new ApiError(400, "Completed must be a boolean.");
   }
 
-  // First verify that the note belongs to this user.
   const noteExists = await existsForUser({
     noteId,
     userId,
