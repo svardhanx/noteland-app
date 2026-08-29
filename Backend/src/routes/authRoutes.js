@@ -14,6 +14,6 @@ authRouter.post("/register", registerController);
 authRouter.post("/login", loginController);
 authRouter.get("/me", meController);
 authRouter.post("/logout", verifyJWT, logoutController);
-authRouter.get("/get-user", verifyJWT, userController);
+authRouter.get("/user", verifyJWT, userController);
 
 export default authRouter;

@@ -1,24 +1,21 @@
 import { Router } from "express";
 import {
-  createNote,
-  createTask,
-  deleteNote,
-  getAllNotes,
+  // getAllNotes,
   getAllUserNotes,
+  createNote,
+  deleteNote,
   updateNote,
-  updateTask,
 } from "../controller/notesController.js";
+import { createTask, updateTask } from "../controller/tasksController.js";
 import verifyJWT from "../middleware/authMiddleware.js";
 
 const notesRouter = Router();
 
-notesRouter.get("/all-notes", getAllNotes);
+// notesRouter.get("/all-notes", getAllNotes);
 
-notesRouter.get("/get-user-notes", verifyJWT, getAllUserNotes);
-notesRouter.post("/create-note", verifyJWT, createNote);
-notesRouter.post("/create-task/:note_id", verifyJWT, createTask);
-notesRouter.patch("/update-task", verifyJWT, updateTask);
-notesRouter.put("/update-note", verifyJWT, updateNote);
-notesRouter.delete("/delete-note/:id", verifyJWT, deleteNote);
+notesRouter.get("/", verifyJWT, getAllUserNotes);
+notesRouter.post("/", verifyJWT, createNote);
+notesRouter.put("/:noteId", verifyJWT, updateNote);
+notesRouter.delete("/:noteId", verifyJWT, deleteNote);
 
 export default notesRouter;

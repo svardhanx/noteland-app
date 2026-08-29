@@ -1,5 +1,15 @@
-import db from "../DB/db.js";
+import db from "../db/db.js";
 
+import asyncHandler from "../utils/asyncHandler.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import {
+  getAllUserNotes as getAllUserNotesService,
+  createNote as createNoteService,
+  updateNote as updateNoteService,
+  deleteNote as deleteNoteService,
+} from "../services/notesService.js";
+
+// Not using
 export const getAllNotes = async (_, res) => {
   try {
     const allNotes = await db.execute(`
@@ -42,300 +52,76 @@ export const getAllNotes = async (_, res) => {
   } catch (error) {
     console.error("Error in createNote controller: ", error.message);
     return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
+      message: "Something went wrong at our end. Please try again.",
       success: false,
     });
   }
 };
 
+// DONE
 export const getAllUserNotes = async (req, res) => {
-  try {
-    const userId = req.user.id;
+  const notes = await getAllUserNotesService(req.user.id);
 
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized. Unable to pull your notes.",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: `
-       SELECT n.*,
-       (SELECT json_group_array(json_object('id', id, 'task_name', task_name, 'completed', completed))
-       FROM tasks WHERE note_id = n.id) as tasks
-       FROM notes n WHERE n.user_id = ?`,
-      args: [userId],
-    });
-
-    if (result.rows.length === 0) {
-      return res.status(200).json({ message: "No notes found." });
-    }
-
-    const notes = result.rows.map((row) => ({
-      ...row,
-      tasks: JSON.parse(row.tasks || "[]").map((task) => ({
-        ...task,
-        completed: task.completed === 1 || task.completed === true,
-      })),
-    }));
-
-    return res.status(200).json({
-      message: "All notes fetched successfully",
-      notes,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error in getAllUserNotes controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      success: false,
-    });
-  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, notes, "Notes fetched successfully."));
 };
 
-export const createNote = async (req, res) => {
-  try {
-    const userId = req.user.id;
+// DONE
+export const createNote = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized. You're not allowed to create a note.",
-        success: false,
-      });
-    }
+  const { title, content } = req.body;
 
-    const { title, content } = req.body;
-
-    if (!title || !content) {
-      return res.status(404).json({
-        message: "Title and content are required to create a note.",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: "INSERT INTO notes (title, content, user_id) VALUES (?, ?, ?) RETURNING *",
-      args: [title, content, userId],
-    });
-
-    if (result?.rows?.length === 0) {
-      return res.status(404).json({
-        message: "Unable to save the note in our database. Please try again.",
-      });
-    }
-
-    return res.status(200).json({
-      message: "A new note created successfully.",
-      data: result.rows[0],
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error in createNote controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      success: false,
-      data: null,
-    });
+  if (!title || !content) {
+    throw new ApiError(400, "Title and content are required to create a note.");
   }
-};
 
-export const createTask = async (req, res) => {
-  try {
-    const { task_name } = req.body;
-    const { note_id } = req.params;
+  const note = await createNoteService({ userId, title, content });
 
-    const userId = req.user.id;
+  return res
+    .status(201)
+    .json(new ApiResponse(201, note, "Note created successfully."));
+});
 
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized. You're not allowed to create a task.",
-        success: false,
-      });
-    }
+// DONE
+export const updateNote = asyncHandler(async (req, res) => {
+  const { noteId } = req.params;
 
-    if (!note_id) {
-      return res.status(404).json({
-        message: "Corresponding Note ID not found in the request.",
-        success: false,
-      });
-    }
+  const { title, content } = req.body;
 
-    if (!task_name) {
-      return res.status(404).json({
-        message: "Unable to create a task. No task found in your request.",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: "INSERT INTO tasks (note_id, task_name) VALUES (?, ?) RETURNING *",
-      args: [note_id, task_name],
-    });
-
-    if (result?.rows?.length === 0) {
-      return res.status(404).json({
-        message: "Unable to save the task in our database. Please try again.",
-      });
-    }
-
-    return res.status(201).json({ message: "Task successfully created.." });
-  } catch (error) {
-    console.error("Error in createTask controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      success: true,
-    });
+  if (!noteId) {
+    throw new ApiError(400, "Note ID is required.");
   }
-};
 
-export const updateNote = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized request received. Please try again.",
-        success: false,
-      });
-    }
-
-    if (String(userId) !== String(req.body.user_id)) {
-      return res.status(403).json({
-        message: "Unauthorized. You're not allowed to update the note.",
-        success: false,
-      });
-    }
-
-    const noteId = req.body.id;
-
-    if (!noteId) {
-      return res.status(403).json({
-        message: "Invalid request to update the note",
-        success: false,
-      });
-    }
-
-    const { title, content } = req.body;
-
-    if (!title || !content) {
-      return res.status(403).json({
-        message: "Invalid request to update the note",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: "UPDATE notes SET title = ?, content = ? WHERE id = ? RETURNING *",
-      args: [title, content, noteId],
-    });
-
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({
-        message: "Unable to update the note.",
-        success: false,
-      });
-    }
-
-    return res.status(200).json({
-      message: "Note successfully updated.",
-      success: true,
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Error in updateNote controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      data: null,
-      success: false,
-    });
+  if (!title || !content) {
+    throw new ApiError(400, "Title and content are required to update a note.");
   }
-};
 
-export const updateTask = async (req, res) => {
-  try {
-    const userId = req.user.id;
+  const note = await updateNoteService({
+    noteId,
+    userId: req.user.id,
+    title,
+    content,
+  });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, note, "Note successfully updated."));
+});
 
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized. You're not allowed to update the note.",
-        success: false,
-      });
-    }
+export const deleteNote = asyncHandler(async (req, res) => {
+  const { noteId } = req.params;
 
-    const { id, status } = req.body;
-
-    if (!id) {
-      return res.status(404).json({
-        message: "Corresponding task id not found in your request.",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: ` UPDATE tasks SET completed = $status WHERE id = $id RETURNING *`,
-      args: { status, id },
-    });
-
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({
-        message: "Unable to update the task at this time.",
-        success: false,
-      });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Task successfully updated.", success: true });
-  } catch (error) {
-    console.error("Error in updateTask controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      success: false,
-    });
+  if (!noteId) {
+    throw new ApiError(400, "Note ID is required.");
   }
-};
 
-export const deleteNote = async (req, res) => {
-  try {
-    const userId = req.user.id;
+  await deleteNoteService({
+    noteId,
+    userId: req.user.id,
+  });
 
-    if (!userId) {
-      return res.status(403).json({
-        message: "Unauthorized. You're not allowed to delete the note.",
-        success: false,
-      });
-    }
-
-    const { id } = req.params;
-
-    if (!id) {
-      return res.status(404).json({
-        message: "Note id not found in your request.",
-        success: false,
-      });
-    }
-
-    const result = await db.execute({
-      sql: "DELETE FROM notes WHERE id = ? AND user_id = ?",
-      args: [id, userId],
-    });
-
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({
-        message: "Note not found or it not authorised to delete the note.",
-        success: false,
-      });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Note Deleted successfully.", success: true });
-  } catch (error) {
-    console.error("Error in deleteNote controller: ", error.message);
-    return res.status(500).json({
-      message: "Something wen't wrong at our end. Please try again.",
-      success: false,
-    });
-  }
-};
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Note deleted successfully."));
+});

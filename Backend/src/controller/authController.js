@@ -1,5 +1,5 @@
 import argon2 from "argon2";
-import db from "../DB/db.js";
+import { client } from "../db/db.js";
 import jwt from "jsonwebtoken";
 
 const options = {
@@ -21,7 +21,7 @@ export const registerController = async (req, res) => {
 
     const hashedPassword = await argon2.hash(password);
 
-    const result = await db.execute({
+    const result = await client.execute({
       sql: "INSERT INTO users (name, email, password) VALUES (?, ?, ?) RETURNING *",
       args: [name, email, hashedPassword],
     });
@@ -51,7 +51,7 @@ export const loginController = async function (req, res) {
       });
     }
 
-    const existingUser = await db.execute({
+    const existingUser = await client.execute({
       sql: "SELECT * FROM users WHERE email = ?",
       args: [email],
     });
@@ -105,7 +105,7 @@ export const loginController = async function (req, res) {
     }
 
     if (token) {
-      await db.execute({
+      await client.execute({
         sql: "UPDATE users SET is_logged_in = 1 WHERE id = ?",
         args: [user.id],
       });
@@ -147,7 +147,7 @@ export const logoutController = async function (req, res) {
       });
     }
 
-    await db.execute({
+    await client.execute({
       sql: "UPDATE users SET is_logged_in = 0 WHERE id = ?", // SQLite uses 0 for false
       args: [userId],
     });
@@ -173,7 +173,7 @@ export const userController = async function (req, res) {
       return res.status(404).json({ message: "No user found", success: false });
     }
 
-    const result = await db.execute({
+    const result = await client.execute({
       sql: "SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?",
       args: [userId],
     });

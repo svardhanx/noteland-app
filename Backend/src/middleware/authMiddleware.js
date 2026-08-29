@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import db from "../DB/db.js";
+import { client } from "../db/db.js";
 
 const verifyJWT = async (req, res, next) => {
   try {
@@ -16,7 +16,7 @@ const verifyJWT = async (req, res, next) => {
 
     const decodedToken = jwt.verify(incomingToken, process.env.TOKEN_SECRET);
 
-    const user = await db.execute("SELECT * FROM users WHERE id = ?", [
+    const user = await client.execute("SELECT * FROM users WHERE id = ?", [
       decodedToken?.id,
     ]);
 
