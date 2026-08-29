@@ -22,7 +22,6 @@ const TaskCreator = () => {
 
   const taskMutation = useMutation();
 
-  // FUNCTION HANDLE TASK SUBMISSION
   async function handleCreateTaskSubmission(formdata) {
     const url = `${apiEndPoints.CREATE_TASK}${currentSelectedNote.id}/tasks`;
 

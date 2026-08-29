@@ -1,4 +1,3 @@
-// store/notesStore.js
 import { create } from "zustand";
 import { apiEndPoints } from "../utils/apiEndpoints";
 

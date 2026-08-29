@@ -19,7 +19,6 @@ const NoteView = () => {
   const noteViewKind = useNotesStore((s) => s.noteViewKind);
   const setNoteViewKind = useNotesStore((s) => s.setNoteViewKind);
   const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
-  // const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
   const currentSelectedNote = useCurrentSelectedNote();
   const fetchNotes = useNotesStore((s) => s.fetchNotes);
   const setOpenActionItemPopup = useNotesStore((s) => s.setOpenActionItemPopup);

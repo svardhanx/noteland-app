@@ -48,7 +48,6 @@ const NewNote = () => {
   function handleClose() {
     setNewNote(false);
     reset();
-    // setPlaceholder(true);
   }
 
   return (
