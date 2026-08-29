@@ -5,7 +5,7 @@ import { apiEndPoints } from "../utils/apiEndpoints";
 export const useAuthStore = create((set) => ({
   user: null,
   userLoggedIn: false,
-  authChecked: false, // has the initial ME check resolved yet?
+  authChecked: false,
   authenticating: false,
   openLoginComponent: false,
   openSignUpComponent: false,
@@ -17,32 +17,24 @@ export const useAuthStore = create((set) => ({
   setUser: (val) => set({ user: val }),
   setUserLoggedIn: (val) => set({ userLoggedIn: val }),
 
-  // Runs once on mount. Only resolves the boolean — cheap, safe to call every load.
-  checkAuth: async () => {
+  initializeAuth: async () => {
     try {
       const res = await fetch(apiEndPoints.ME, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        set({ userLoggedIn: data.isLoggedIn });
+      if (!res.ok) {
+        set({ user: null, userLoggedIn: false });
+        return;
+      }
+      const data = await res.json();
+      if (data.success && data.user) {
+        set({ user: data.user, userLoggedIn: true });
+      } else {
+        set({ user: null, userLoggedIn: false });
       }
     } catch (err) {
-      console.error("Error checking auth", err);
+      console.error("Error initializing authentication", err);
+      set({ user: null, userLoggedIn: false });
     } finally {
       set({ authChecked: true });
-    }
-  },
-
-  fetchUser: async () => {
-    try {
-      const res = await fetch(apiEndPoints.GET_USER, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`Failed request: ${res.status}`);
-      const data = await res.json();
-      if (data.success) set({ user: data.user });
-    } catch (err) {
-      console.error("Error fetching user", err);
-      set({ user: null, userLoggedIn: false });
     }
   },
 

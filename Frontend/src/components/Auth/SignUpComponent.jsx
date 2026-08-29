@@ -1,5 +1,5 @@
 import { Modal } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../ui/button";
 import { useAuthStore } from "../../store/authStore";
 import { Controller, useForm } from "react-hook-form";
@@ -40,6 +40,8 @@ export default function SignUpComponent() {
 
       toast.success(result?.message);
 
+      setOpenSignUpComponent(false);
+
       setOpenLoginComponent(true);
 
       reset();
@@ -57,6 +59,12 @@ export default function SignUpComponent() {
     setOpenSignUpComponent(false);
     reset(defaultValues);
   }
+
+  useEffect(() => {
+    return () => {
+      reset(defaultValues);
+    };
+  }, [reset]);
 
   return (
     <Modal

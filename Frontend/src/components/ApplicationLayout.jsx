@@ -11,8 +11,8 @@ import { useNotesStore } from "../store/notesStore";
 export default function ApplicationLayout() {
   const userLoggedIn = useAuthStore((s) => s.userLoggedIn);
   const authChecked = useAuthStore((s) => s.authChecked);
-  const checkAuth = useAuthStore((s) => s.checkAuth);
-  const fetchUser = useAuthStore((s) => s.fetchUser);
+
+  const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const user = useAuthStore((s) => s.user);
 
   const newNote = useNotesStore((s) => s.newNote);
@@ -20,17 +20,14 @@ export default function ApplicationLayout() {
   const noteView = useNotesStore((s) => s.noteView);
   const fetchNotes = useNotesStore((s) => s.fetchNotes);
 
-  // Once on mount: resolve "logged in?" so a hard refresh doesn't flash logged-out.
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    initializeAuth();
+  }, [initializeAuth]);
 
-  // Once, the moment auth resolves true: load user + notes. Never re-runs on note CRUD.
   useEffect(() => {
     if (!userLoggedIn) return;
-    fetchUser();
     fetchNotes();
-  }, [fetchNotes, fetchUser, userLoggedIn]);
+  }, [fetchNotes, userLoggedIn]);
 
   if (!authChecked) return null;
 

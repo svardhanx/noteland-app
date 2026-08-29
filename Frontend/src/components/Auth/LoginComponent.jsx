@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Button from "../../ui/button";
 import { apiEndPoints } from "../../utils/apiEndpoints";
@@ -56,6 +56,12 @@ export default function LoginComponent() {
   function handleClose() {
     setOpenLoginComponent(false);
   }
+
+  useEffect(() => {
+    return () => {
+      reset(defaultValues);
+    };
+  }, [reset]);
 
   return (
     <Modal
