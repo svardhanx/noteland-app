@@ -27,7 +27,6 @@ export const useNotesStore = create((set) => ({
   setOpenActionItemPopup: (val) => set({ openActionItemPopup: val }),
   setActionItemHelperData: (val) => set({ actionItemHelperData: val }),
 
-  // Call this on mount-when-logged-in, AND after any add/update/delete.
   fetchNotes: async () => {
     try {
       set({ notesLoading: true });
@@ -54,7 +53,6 @@ export const useNotesStore = create((set) => ({
     }),
 }));
 
-// Derived value — no effect needed, just a selector.
 export const useCurrentSelectedNote = () =>
   useNotesStore((s) =>
     s.allNotes.find((n) => n.id === s.currentSelectedNoteID),

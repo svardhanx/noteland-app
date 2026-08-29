@@ -10,7 +10,7 @@ import Button from "../ui/button";
 import { CircleX, Copy, Edit } from "lucide-react";
 import { apiEndPoints } from "../utils/apiEndpoints";
 import { useMutation } from "../hooks/use-mutation";
-import { useNotesStore } from "../store/notesStore";
+import { useCurrentSelectedNote, useNotesStore } from "../store/notesStore";
 import { Divider } from "@mui/material";
 import ActionItemPopup from "./ActionItemPopup";
 
@@ -19,7 +19,8 @@ const NoteView = () => {
   const noteViewKind = useNotesStore((s) => s.noteViewKind);
   const setNoteViewKind = useNotesStore((s) => s.setNoteViewKind);
   const setCurrentSelectedNote = useNotesStore((s) => s.setCurrentSelectedNote);
-  const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
+  // const currentSelectedNote = useNotesStore((s) => s.currentSelectedNote);
+  const currentSelectedNote = useCurrentSelectedNote();
   const fetchNotes = useNotesStore((s) => s.fetchNotes);
   const setOpenActionItemPopup = useNotesStore((s) => s.setOpenActionItemPopup);
   const setActionItemHelperData = useNotesStore(
