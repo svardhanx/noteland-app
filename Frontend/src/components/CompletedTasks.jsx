@@ -6,7 +6,7 @@ import { useMutation } from "../hooks/use-mutation";
 import { useNotesStore } from "../store/notesStore";
 
 const CompletedTasks = ({ task }) => {
-  const { fetchNotes } = useNotesStore();
+  const { fetchNotes, currentSelectedNoteID } = useNotesStore();
 
   const updateTaskMutation = useMutation();
 
@@ -17,9 +17,9 @@ const CompletedTasks = ({ task }) => {
     }
 
     try {
-      const url = apiEndPoints.UPDATE_TASK;
+      const url = `${apiEndPoints.UPDATE_TASK}${currentSelectedNoteID}/tasks/${id}`;
 
-      const payload = { id, status: false };
+      const payload = { id, completed: false };
 
       const result = await updateTaskMutation.mutate(url, payload, "PATCH");
 
@@ -38,7 +38,7 @@ const CompletedTasks = ({ task }) => {
         size={20}
         onClick={() => handleTaskCompletion(task.id)}
       />
-      <span className="text-white line-through">{task?.task_name}</span>
+      <span className="text-white line-through">{task?.taskName}</span>
     </div>
   );
 };

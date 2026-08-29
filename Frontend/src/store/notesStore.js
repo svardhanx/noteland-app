@@ -35,7 +35,7 @@ export const useNotesStore = create((set) => ({
       });
       if (!res.ok) throw new Error(`Failed request: ${res.status}`);
       const data = await res.json();
-      if (data.success) set({ allNotes: data.notes });
+      if (data.success) set({ allNotes: data?.data });
     } catch (err) {
       console.error("Error fetching notes", err);
       set({ allNotes: [] });

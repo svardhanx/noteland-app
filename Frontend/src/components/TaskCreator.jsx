@@ -18,13 +18,13 @@ const TaskCreator = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ defaultValues: { task_name: "" } });
+  } = useForm({ defaultValues: { taskName: "" } });
 
   const taskMutation = useMutation();
 
   // FUNCTION HANDLE TASK SUBMISSION
   async function handleCreateTaskSubmission(formdata) {
-    const url = `${apiEndPoints.CREATE_TASK}/${currentSelectedNote.id}`;
+    const url = `${apiEndPoints.CREATE_TASK}${currentSelectedNote.id}/tasks`;
 
     try {
       const result = await taskMutation.mutate(url, formdata, "POST");
@@ -58,7 +58,7 @@ const TaskCreator = () => {
         <h3 className="font-semibold text-xl">Enter New Task:</h3>
         <Controller
           control={control}
-          name="task_name"
+          name="taskName"
           rules={{
             required: "task name is required",
           }}
@@ -71,8 +71,8 @@ const TaskCreator = () => {
                   placeholder="Task Name"
                   className="outline-0 p-2 rounded-md text-lg border-2 border-black w-full"
                 />
-                {errors?.task_name?.message && (
-                  <FieldError message={errors?.task_name?.message} />
+                {errors?.taskName?.message && (
+                  <FieldError message={errors?.taskName?.message} />
                 )}
               </div>
             );

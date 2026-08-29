@@ -53,7 +53,7 @@ const NoteView = () => {
   async function deleteNote() {
     try {
       const result = await deleteMutation.mutate(
-        `${apiEndPoints.DELETE_NOTE}/${currentSelectedNote.id}`,
+        `${apiEndPoints.DELETE_NOTE}${currentSelectedNote.id}`,
         null,
         "DELETE",
       );
@@ -88,7 +88,7 @@ const NoteView = () => {
 
     try {
       const result = await editMutation.mutate(
-        apiEndPoints.UPDATE_NOTE,
+        `${apiEndPoints.UPDATE_NOTE}${currentSelectedNote.id}`,
         payload,
         "PUT",
       );
