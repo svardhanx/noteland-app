@@ -13,7 +13,6 @@ export default function ApplicationLayout() {
   const authChecked = useAuthStore((s) => s.authChecked);
 
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
-  const user = useAuthStore((s) => s.user);
 
   const newNote = useNotesStore((s) => s.newNote);
   const placeholder = useNotesStore((s) => s.placeholder);
@@ -40,7 +39,7 @@ export default function ApplicationLayout() {
         <SignUpComponent />
       </div>
       <WarningToastComponent />
-      {user && !noteView && !newNote && <NewNoteIcon />}
+      {userLoggedIn && !noteView && !newNote && <NewNoteIcon />}
     </>
   );
 }
