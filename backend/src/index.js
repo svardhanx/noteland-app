@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
+// import cors from "cors";
 import notesRouter from "./routes/notesRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
@@ -15,13 +15,13 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-app.use(
-  cors({
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    origin: [process.env.FRONTEND_URL, process.env.LOCALHOST],
-    credentials: true,
-  }),
-);
+// app.use(
+//   cors({
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+//     origin: [process.env.FRONTEND_URL, process.env.LOCALHOST],
+//     credentials: true,
+//   }),
+// );
 
 app.use(cookieParser());
 app.use(express.json());
