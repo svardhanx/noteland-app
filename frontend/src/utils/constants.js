@@ -1,4 +1,4 @@
-export const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL + "/api";
+export const API_BASE_URL = "/api";
 
 export const NOTE_VIEW_KINDS = Object.freeze({
   ADD: "ADD",
